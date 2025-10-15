@@ -102,7 +102,7 @@ function RightAction({ progress, drag, panel, sourceWord, index, visiblePanel, .
             justifyContent: "flex-start",
             flexDirection: "row",
             alignItems: "center",
-            transform: [{ translateX: interpolate((drag.value), [0, -80], [80, 0], "extend") }]
+            transform: [{ translateX: interpolate((drag.value), [0, -80], [80, 0], "clamp") }]
         };
     });
     const iconContainnerStyle = useAnimatedStyle(() => {
@@ -136,8 +136,8 @@ function RightAction({ progress, drag, panel, sourceWord, index, visiblePanel, .
             <GestureDetector gesture={Gesture.Tap()
                 .onStart(() => {
 
-                    //runOnJS(deleteDownloadWord)(sourceWord.wordName, sourceWord.wordName)
-                    runOnJS(goSentenceSetting)()
+                
+                    scheduleOnRN(goSentenceSetting)
                     panel?.close()
                 })
                 .onEnd(() => { })

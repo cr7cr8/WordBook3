@@ -35,7 +35,7 @@ import ReAnimated, {
 import HomeScreen from './HomeScreen';
 // import WordSettingScreen from './WordSettingScreen';
 // import EditorScreen from './EditorScreen';
-// import NewWordScreen from './NewWordScreen';
+import NewWordScreen from './NewWordScreen';
 // import SortingScreen from './SortingScreen';
 import SentenceSettingScreen from "./SentenceSettingScreen";
 
@@ -142,7 +142,8 @@ export default function StackNavigator() {
                     //         component={function () { return <></> }}
                     component={CardScreen}
                 /> */}
-                {/* <Stack.Screen name="WordSettingScreen"
+                {/*
+                 <Stack.Screen name="WordSettingScreen"
                     options={function ({ navigation, router }) {
 
                         return {
@@ -198,7 +199,7 @@ export default function StackNavigator() {
                     //         component={function () { return <></> }}
                     component={EditorScreen}
                 />
-
+                */}
                 <Stack.Screen name="NewWordScreen"
                     options={function ({ navigation, router }) {
 
@@ -227,7 +228,7 @@ export default function StackNavigator() {
                     //         component={function () { return <></> }}
                     component={NewWordScreen}
                 />
-
+                {/*
                 <Stack.Screen name="SortingScreen"
                     options={function ({ navigation, router }) {
 
@@ -255,7 +256,8 @@ export default function StackNavigator() {
                     }}
                     //         component={function () { return <></> }}
                     component={SortingScreen}
-                />*/}
+                />
+                  */}
                 <Stack.Screen name="SentenceSettingScreen"
                     options={function ({ navigation, router }) {
 
@@ -283,7 +285,7 @@ export default function StackNavigator() {
                     }}
                     //         component={function () { return <></> }}
                     component={SentenceSettingScreen}
-                /> 
+                />
 
             </Stack.Navigator>
 

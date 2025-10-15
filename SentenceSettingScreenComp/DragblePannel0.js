@@ -310,7 +310,6 @@ function RightAction({ props, sourceWord, arrIndex, getIndex, panelHeight, newPa
 
         })
         setSouceWordArr(arr)
-
         //    saveWordToFile() // saveing will be doing in onLayout function
 
 
@@ -343,7 +342,7 @@ function RightAction({ props, sourceWord, arrIndex, getIndex, panelHeight, newPa
 
                         setTimeout(() => {
                             deleteDownloadWord(word.wordName, word.exampleEnglishArr[arrIndex].sentence)
-                        }, 0);
+                        }, 100);
 
                         return newWord
                     }
@@ -355,7 +354,7 @@ function RightAction({ props, sourceWord, arrIndex, getIndex, panelHeight, newPa
             })
             setTimeout(() => {
                 saveWordToFile()
-            }, 0);
+            }, 100);
 
         }, 0);
 
@@ -407,8 +406,7 @@ function RightAction({ props, sourceWord, arrIndex, getIndex, panelHeight, newPa
 
     return (
         <View style={[{
-            backgroundColor: "#e7cca0", width: 180,
-            height: 80,
+            backgroundColor: "#e7cca0", width: 180, height: 80,
             display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center",
             borderBottomWidth: 1, borderBottomColor: "#D2B48C", //backgroundColor: "orange"
         },
@@ -417,8 +415,6 @@ function RightAction({ props, sourceWord, arrIndex, getIndex, panelHeight, newPa
             return {
                 //transform: [{ scale: interpolate((-props[1].value), [0, 180], [0, 1], "extend") }]
                 transform: [{ translateX: interpolate((props[1].value), [0, -180], [180, 0], "extend") }]
-                // transform: [{ translateX: interpolate((props[1].value), [0, -screenWidth], [screenWidth, 0], "extend") }]
-
                 //transform: [{ translateX: interpolate((props[0].value), [0, 1], [180, 0], "extend") }]
 
             }
@@ -429,7 +425,7 @@ function RightAction({ props, sourceWord, arrIndex, getIndex, panelHeight, newPa
 
 
             <GestureDetector gesture={Gesture.Tap()
-                .onStart(e => {
+                .onEnd(e => {
                     scheduleOnRN(addSentence)
                     //"#e7cca0" : "#fcd19dff",
                 })}>
@@ -606,41 +602,13 @@ export function DragblePannel({ item, drag, isActive, getIndex, allPannelArr }) 
         }, delayTime);
     }
 
-
+    const shiftX = useSharedValue(0)
     return (
         <>
 
             <ScaleDecorator activeScale={0.9} key={item.key}>
 
-                <ReanimatedSwipeable
-                    dragOffsetFromLeftEdge={5}
-                    dragOffsetFromRightEdge={5}
-                    ref={(ref) => {
-                        allPannelArr.current.push(ref)
-                        panelRef.current = ref
-                    }}
-
-                    containerStyle={{ backgroundColor: "darkgray" }}
-                    friction={1}
-                    // enableTrackpadTwoFingerGesture
-                    leftThreshold={10}
-                    rightThreshold={10}
-                    // onSwipeableWillOpen={(e) => {
-                    //     //  console.log(e)
-                    // }}
-                    renderRightActions={
-                        function (...props) {
-                            return (<RightAction props={props} sourceWord={sourceWord} item={item} arrIndex={arrIndex} getIndex={getIndex}
-                                panelHeight={panelHeight} newPanelHeight={newPanelHeight} />)
-                        }
-                    }
-                    renderLeftActions={
-                        function (...props) {
-                            return (<LeftAction props={props} sourceWord={sourceWord} item={item} arrIndex={arrIndex} getIndex={getIndex} />)
-                        }
-                    }
-
-                >
+             
 
                     <TouchableOpacity
                         activeOpacity={1}
@@ -667,6 +635,31 @@ export function DragblePannel({ item, drag, isActive, getIndex, allPannelArr }) 
 
 
                             }).enabled(!isActive),
+                            Gesture.Pan()
+                                .onChange(e => {
+                                    if (isActive) { return }
+                                   // console.log(e)
+                                    shiftX.value = shiftX.value + e.changeX
+
+                                })
+                                .onEnd(e => {
+                                 
+                                    let posX = 0
+                                    console.log(shiftX.value)
+                                    // if (shiftX.value -400 > 20) {
+                                    //     posX = 400
+                                    // }
+                                    // else if (shiftX.value < -20) {
+                                    //     posX = -240
+                                    // }
+                                    // else {
+                                    //     posX = 0
+                                    // }
+
+                                    // shiftX.value = withTiming(posX)
+                                })
+                                .activeOffsetX([-5, 5])
+                                .enabled(!isActive),
 
 
 
@@ -693,13 +686,10 @@ export function DragblePannel({ item, drag, isActive, getIndex, allPannelArr }) 
 
                                     if (isNewAdded) {
                                         // newPanelHeight.value = 80
-                                        //console.log("save new added sentence",Date.now())
-                                        //saveWordToFile()
-                                    
+                                        // saveWordToFile()
+
                                         newPanelHeight.value = withTiming(80, { duration: 300 }, () => {
-                                            //console.log(Date.now())
-                                            item.isNewAdded = false 
-                                            scheduleOnRN(delayToSaveWordToFile, 0)
+                                            scheduleOnRN(delayToSaveWordToFile, 300)
                                         })
                                     }
 
@@ -715,8 +705,8 @@ export function DragblePannel({ item, drag, isActive, getIndex, allPannelArr }) 
                                     const isDownloaded = item?.isDownloaded
                                     const isNewAdded = item?.isNewAdded
                                     return {
-                                        width: screenWidth,
-
+                                        width: screenWidth + 400 + 240,
+                                        transform: [{ translateX: shiftX.value - 400 }],
 
                                         justifyContent: "center", alignItems: "center",
                                         borderBottomWidth: isNewAdded
@@ -731,17 +721,53 @@ export function DragblePannel({ item, drag, isActive, getIndex, allPannelArr }) 
 
                                         height: isNewAdded
                                             ? newPanelHeight.value
-                                            : panelHeight.value
+                                            : panelHeight.value,
+                                        flexDirection: "row"
+
+
                                     }
+
+
                                 })]}>
 
+                                <View style={useAnimatedStyle(() => {
 
-                                <Text style={{ fontSize: 18 }} ellipsizeMode={"tail"} numberOfLines={2}>{item.englishLabel}</Text>
-                                <Text style={{ fontSize: 16, color: "#555" }} ellipsizeMode={"tail"} numberOfLines={1}>{item.chineseLabel}</Text>
+                                    return {
+                                        width: 400,
+                                        height: 80, backgroundColor: "rgba(123,254,132,0.3)",
+                                        justifyContent: "center", alignItems: "center",
+                                    }
+
+                                })}></View>
+
+
+                                <View style={useAnimatedStyle(() => {
+
+                                    return {
+                                        width: screenWidth,
+                                        height: 80, backgroundColor: "rgba(123,54,32,0.3)",
+                                        justifyContent: "center", alignItems: "center",
+                                    }
+
+                                })}>
+                                    <Text style={{ fontSize: 18 }} ellipsizeMode={"tail"} numberOfLines={2}>{item.englishLabel}</Text>
+                                    <Text style={{ fontSize: 16, color: "#555" }} ellipsizeMode={"tail"} numberOfLines={1}>{item.chineseLabel}</Text>
+                                </View>
+
+                                <View style={useAnimatedStyle(() => {
+
+                                    return {
+                                        width: 240,
+                                        height: 80, backgroundColor: "rgba(163,54,152,0.3)",
+                                        justifyContent: "center", alignItems: "center",
+                                    }
+
+                                })}></View>
+
                             </View>
                         </GestureDetector>
                     </TouchableOpacity>
-                </ReanimatedSwipeable>
+                
             </ScaleDecorator>
 
         </>
@@ -979,9 +1005,9 @@ function HeadRight({ props, sourceWord }) {
                 return arr
             })
 
-            // setTimeout(() => {
-            // saveWordToFile()
-            //  }, 100);
+            setTimeout(() => {
+                // saveWordToFile()
+            }, 100);
 
         }, 0);
 
@@ -1188,6 +1214,12 @@ export function HeadPannel({ item }) {
 
     const hashName1 = CryptoJS(sourceWord.wordName).toString()
     const hashName2 = CryptoJS(sourceWord.wordName).toString()
+
+
+
+
+
+
 
 
     return (

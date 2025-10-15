@@ -13,8 +13,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import { StyleSheet, Dimensions, TouchableOpacity, SafeAreaView, RefreshControl, BackHandler, Alert, Button, Vibration } from 'react-native';
 const screenWidth = Dimensions.get('screen').width
 const screenHeight = Dimensions.get('screen').height
-import superagent, { source } from "superagent"
-import * as FileSystem from 'expo-file-system';
+import superagent, { PATCH, source } from "superagent"
+//import * as FileSystem from 'expo-file-system';
+import { Directory, File, Paths } from "expo-file-system";
 import {
     Gesture,
     GestureDetector,
@@ -71,12 +72,12 @@ import CryptoJS from 'crypto-js/sha256';
 export function HeaderBar() {
 
 
-    const { sourceWordArr, scrollRef0, scrollRef, scrollRef2, frameTransY, wordPos, isListPlaying, preLeft, preTop, scrollY, scrollX,
+    const { sourceWordArr, setSouceWordArr, scrollRef0, scrollRef, scrollRef2, frameTransY, wordPos, isListPlaying, preLeft, preTop, scrollY, scrollX,
         isPanning, speak, autoPlay, stopSpeak, isScrollingY, isScrollingX, isCardMoving, isManualDrag, shouldHideWordBlock } = useContext(Context)
 
     const navigation = useNavigation()
     function goToAddNew() {
-        navigation.navigate("SentenceSettingScreen", { isAddNew: true })
+        navigation.navigate("NewWordScreen", { isAddNew: true })
     }
 
     const playButtonStyle1 = useAnimatedStyle(() => {
@@ -107,6 +108,35 @@ export function HeaderBar() {
         scrollRef0.current.scrollToEnd()
     }
 
+
+    function loadTextFile() {
+        console.log("ddddddddddddddd---------------9999999999aa")
+        // File.pickFileAsync(Directory.).then(file => {
+        //     console.log("dsdfsdfdsf")
+        //         console.log(file.uri)
+        // })
+        //const dir = new Directory("content://com.android.externalstorage.documents/")
+        File.pickFileAsync("content://com.android.externalstorage.documents/document/", "text/plain").then(file => {
+            //console.log(file.textSync())
+            const arr = JSON.parse(file.textSync())
+
+            arr.sort((word1, word2) => { return word2.toppingTime - word1.toppingTime })
+          
+
+            setSouceWordArr(arr)
+        })
+
+        //  Directory.pickDirectoryAsync("Documents").then(dir=>{
+        //   console.log(dir.uri)
+        //  });
+
+        // can replace the mime type with whatever you need like text/plain for .txt
+        // or pass it as a parameter if it's not constant
+        // const createdFile = directory.createFile(fileName, "application/json");
+        //  createdFle.write(JSON.stringify(content));
+
+        // console.log
+    }
 
     return (
         <View style={{
@@ -201,7 +231,7 @@ export function HeaderBar() {
 
                         <GestureDetector gesture={Gesture.Tap().onEnd(() => {
 
-
+                            scheduleOnRN(loadTextFile)
                         })}>
 
                             <Icon

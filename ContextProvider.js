@@ -323,6 +323,28 @@ export default function ContextProvider(props) {
 
 
         }
+        else if (!word2.match(/[\w\u4E00-\u9FFF]+/g)) {   // including japaese ,korean characters,  cell phone can only read chinese chars.
+
+
+            audioPlayer.pause()
+            Speech.stop()
+            console.log("no readable characters", word2)
+            Speech.speak("unreadable", {
+
+                onDone: () => {
+                    // console.log("speaking", word2, " isDone")
+                    resolveMethod(word2 + " Speech reading done")
+                },
+                onError: () => {
+                    rejectMethod(word2 + "speech reading ERROR")
+                },
+                onStopped: () => {
+                    resolveMethod(word2 + " Speech reading stopped")
+                }
+            }); 
+        }
+
+
         else {
             audioPlayer.pause()
             Speech.stop()
@@ -341,13 +363,6 @@ export default function ContextProvider(props) {
         }
 
         return p
-
-
-
-
-
-
-
     }, 200, { leading: true, trailing: false })
 
     function isAllScrollingStop() {
@@ -404,10 +419,10 @@ export default function ContextProvider(props) {
             // }
 
             // for (let j = 0; j < sourceWordArr[wordPos.value].exampleChineseArr[i].firstTimeAmount; j++) {
-                arr.push(function () {
-                    if (!isListPlaying.value) { return Promise.resolve() }
-                    return speak(sourceWordArr[wordPos.value].exampleChineseArr[i].sentence, sourceWordArr[wordPos.value].exampleChineseArr[i].sentence)
-                })
+            arr.push(function () {
+                if (!isListPlaying.value) { return Promise.resolve() }
+                return speak(sourceWordArr[wordPos.value].exampleChineseArr[i].sentence, sourceWordArr[wordPos.value].exampleChineseArr[i].sentence)
+            })
             // }
 
             // for (let j = 0; j < sourceWordArr[wordPos.value].exampleEnglishArr[i].secondTimeAmount; j++) {
@@ -555,6 +570,7 @@ export default function ContextProvider(props) {
 
     }, 0, { leading: true, trailing: false })
 
+    const [newWordText,setNewWordText] = useState("")
     return (
 
         <Context.Provider value={{
@@ -567,11 +583,30 @@ export default function ContextProvider(props) {
             refreshState, setRefreshState,
             downloadWord, deleteDownloadWord, deleteWordToFile,
             stopSpeak, checkPlaying, speak,
-            sentencePlayingIndex, autoPlay
+            sentencePlayingIndex, autoPlay,
+            newWordText,setNewWordText
         }}>
 
             {props.children}
+            <View style={useAnimatedStyle(() => {
+                const scale = isSaving.value ? 1 : 0.01
 
+                return {
+                    backgroundColor: "rgba(163, 158, 158, 0.5)",
+                    // display: isSaving.value ? "flex" : "none",
+                    display: "flex",
+                    width: screenWidth,
+                    height: screenHeight,
+                    position: "absolute",
+                    zIndex: 100,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    transform: [{ scale: scale }],//[{ scale: withTiming(scale) }],
+                    opacity: isSaving.value ? 1 : 0
+                }
+            })}>
+                <Text style={{ fontSize: 30 }}>Saving...</Text>
+            </View>
         </Context.Provider>
 
 

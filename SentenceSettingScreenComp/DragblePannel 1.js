@@ -310,7 +310,6 @@ function RightAction({ props, sourceWord, arrIndex, getIndex, panelHeight, newPa
 
         })
         setSouceWordArr(arr)
-
         //    saveWordToFile() // saveing will be doing in onLayout function
 
 
@@ -343,7 +342,7 @@ function RightAction({ props, sourceWord, arrIndex, getIndex, panelHeight, newPa
 
                         setTimeout(() => {
                             deleteDownloadWord(word.wordName, word.exampleEnglishArr[arrIndex].sentence)
-                        }, 0);
+                        }, 100);
 
                         return newWord
                     }
@@ -355,7 +354,7 @@ function RightAction({ props, sourceWord, arrIndex, getIndex, panelHeight, newPa
             })
             setTimeout(() => {
                 saveWordToFile()
-            }, 0);
+            }, 100);
 
         }, 0);
 
@@ -408,7 +407,7 @@ function RightAction({ props, sourceWord, arrIndex, getIndex, panelHeight, newPa
     return (
         <View style={[{
             backgroundColor: "#e7cca0", width: 180,
-            height: 80,
+             height: 80,
             display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center",
             borderBottomWidth: 1, borderBottomColor: "#D2B48C", //backgroundColor: "orange"
         },
@@ -417,8 +416,8 @@ function RightAction({ props, sourceWord, arrIndex, getIndex, panelHeight, newPa
             return {
                 //transform: [{ scale: interpolate((-props[1].value), [0, 180], [0, 1], "extend") }]
                 transform: [{ translateX: interpolate((props[1].value), [0, -180], [180, 0], "extend") }]
-                // transform: [{ translateX: interpolate((props[1].value), [0, -screenWidth], [screenWidth, 0], "extend") }]
-
+              // transform: [{ translateX: interpolate((props[1].value), [0, -screenWidth], [screenWidth, 0], "extend") }]
+               
                 //transform: [{ translateX: interpolate((props[0].value), [0, 1], [180, 0], "extend") }]
 
             }
@@ -429,7 +428,7 @@ function RightAction({ props, sourceWord, arrIndex, getIndex, panelHeight, newPa
 
 
             <GestureDetector gesture={Gesture.Tap()
-                .onStart(e => {
+                .onEnd(e => {
                     scheduleOnRN(addSentence)
                     //"#e7cca0" : "#fcd19dff",
                 })}>
@@ -606,7 +605,7 @@ export function DragblePannel({ item, drag, isActive, getIndex, allPannelArr }) 
         }, delayTime);
     }
 
-
+    const shiftX = useSharedValue(0)
     return (
         <>
 
@@ -628,17 +627,17 @@ export function DragblePannel({ item, drag, isActive, getIndex, allPannelArr }) 
                     // onSwipeableWillOpen={(e) => {
                     //     //  console.log(e)
                     // }}
-                    renderRightActions={
-                        function (...props) {
-                            return (<RightAction props={props} sourceWord={sourceWord} item={item} arrIndex={arrIndex} getIndex={getIndex}
-                                panelHeight={panelHeight} newPanelHeight={newPanelHeight} />)
-                        }
+                renderRightActions={
+                    function (...props) {
+                        return (<RightAction props={props} sourceWord={sourceWord} item={item} arrIndex={arrIndex} getIndex={getIndex}
+                            panelHeight={panelHeight} newPanelHeight={newPanelHeight} />)
                     }
-                    renderLeftActions={
-                        function (...props) {
-                            return (<LeftAction props={props} sourceWord={sourceWord} item={item} arrIndex={arrIndex} getIndex={getIndex} />)
-                        }
+                }
+                renderLeftActions={
+                    function (...props) {
+                        return (<LeftAction props={props} sourceWord={sourceWord} item={item} arrIndex={arrIndex} getIndex={getIndex} />)
                     }
+                }
 
                 >
 
@@ -667,7 +666,7 @@ export function DragblePannel({ item, drag, isActive, getIndex, allPannelArr }) 
 
 
                             }).enabled(!isActive),
-
+                           
 
 
                         )}>
@@ -693,13 +692,10 @@ export function DragblePannel({ item, drag, isActive, getIndex, allPannelArr }) 
 
                                     if (isNewAdded) {
                                         // newPanelHeight.value = 80
-                                        //console.log("save new added sentence",Date.now())
-                                        //saveWordToFile()
-                                    
+                                        // saveWordToFile()
+
                                         newPanelHeight.value = withTiming(80, { duration: 300 }, () => {
-                                            //console.log(Date.now())
-                                            item.isNewAdded = false 
-                                            scheduleOnRN(delayToSaveWordToFile, 0)
+                                            scheduleOnRN(delayToSaveWordToFile, 300)
                                         })
                                     }
 
@@ -715,8 +711,8 @@ export function DragblePannel({ item, drag, isActive, getIndex, allPannelArr }) 
                                     const isDownloaded = item?.isDownloaded
                                     const isNewAdded = item?.isNewAdded
                                     return {
-                                        width: screenWidth,
-
+                                        width: screenWidth ,
+                                        transform: [{ translateX: shiftX.value  }],
 
                                         justifyContent: "center", alignItems: "center",
                                         borderBottomWidth: isNewAdded
@@ -732,10 +728,15 @@ export function DragblePannel({ item, drag, isActive, getIndex, allPannelArr }) 
                                         height: isNewAdded
                                             ? newPanelHeight.value
                                             : panelHeight.value
+
+
+
                                     }
+
+
                                 })]}>
 
-
+                             
                                 <Text style={{ fontSize: 18 }} ellipsizeMode={"tail"} numberOfLines={2}>{item.englishLabel}</Text>
                                 <Text style={{ fontSize: 16, color: "#555" }} ellipsizeMode={"tail"} numberOfLines={1}>{item.chineseLabel}</Text>
                             </View>
@@ -979,9 +980,9 @@ function HeadRight({ props, sourceWord }) {
                 return arr
             })
 
-            // setTimeout(() => {
-            // saveWordToFile()
-            //  }, 100);
+            setTimeout(() => {
+                // saveWordToFile()
+            }, 100);
 
         }, 0);
 
@@ -1188,6 +1189,12 @@ export function HeadPannel({ item }) {
 
     const hashName1 = CryptoJS(sourceWord.wordName).toString()
     const hashName2 = CryptoJS(sourceWord.wordName).toString()
+
+
+
+
+
+
 
 
     return (

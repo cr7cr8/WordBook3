@@ -9,7 +9,7 @@ import SwipeableItem, {
     OpenDirection,
 } from "react-native-swipeable-item";
 import { NavigationContainer } from '@react-navigation/native';
-
+ 
 import { StyleSheet, Button, Dimensions, TouchableOpacity, SafeAreaView, RefreshControl, BackHandler, Alert, Vibration } from 'react-native';
 const screenWidth = Dimensions.get('screen').width
 const screenHeight = Dimensions.get('screen').height
@@ -543,9 +543,9 @@ function WordPanel({ sourceWord, index, visibleCard }) {
                     }}>
                         {sourceWord.wordName}
                     </Text>
-                    {/* <Text ellipsizeMode={"tail"} style={{ position: "absolute", right: 0, fontSize: 15, transform: [{ translateY: 8 }], color: "#555" }}>
+                    <Text ellipsizeMode={"tail"} style={{ position: "absolute", right: 0, fontSize: 15, transform: [{ translateY: 8 }], color: "#555" }}>
                         {index + " "}
-                    </Text> */}
+                    </Text>
 
                     <Text style={{ fontSize: 17, color: "#555" }} onLayout={(e) => {
                         //  e.persist()
