@@ -60,7 +60,7 @@ export default function App() {
     </ContextProvider>
 
   );
-}
+} 
 
 function AppStart() {
 
