@@ -168,7 +168,7 @@ export default function HomeScreen() {
 
             //   backgroundColor: "wheat",
             backgroundColor: "wheat",
-            transform: [{ translateY: -frameTransY.value  }],
+            transform: [{ translateY: -frameTransY.value }],
 
             opacity: frameTransY.value < 160 ? 0.5 : 1
 
@@ -332,12 +332,12 @@ export default function HomeScreen() {
                     rowRenderer={function (props) {
                         //console.log(props)
 
-                 
+
                         return (
 
                             <>
-                              <Card {...props} visibleCard={visibleCard.current} />
-                             
+                                <Card {...props} visibleCard={visibleCard.current} />
+
 
                             </>
                         )
@@ -398,9 +398,10 @@ export default function HomeScreen() {
                             isScrollingX.value = false
 
 
-                            if ((isListPlaying.value == false) && (isManualDrag.value)) {
-                                wordPos.value = e.nativeEvent.contentOffset.x / screenWidth
 
+                            if ((isListPlaying.value == false) && (isManualDrag.value)) {
+                                wordPos.value = Math.round(e.nativeEvent.contentOffset.x / screenWidth)
+                           
 
                                 if (e.nativeEvent.contentOffset.x - startPos) {
                                     speak(
@@ -426,7 +427,7 @@ export default function HomeScreen() {
 
 
 
-         <ScrollPivot /> 
+            <ScrollPivot />
         </View>
 
 

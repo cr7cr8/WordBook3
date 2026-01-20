@@ -303,8 +303,9 @@ export function RateBar() { //!!! Make sure the Card.js render first, then rende
 
 
     const localLevel = useDerivedValue(() => {
+      
         return sourceWordArr[Math.round(scrollX.value / screenWidth)].level
-    }, [scrollX.value])
+    }, [scrollX.value,sourceWordArr])
 
 
 

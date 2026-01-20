@@ -101,9 +101,9 @@ export default function NewWordScreen() {
             .then(data => {
                 const obj = JSON.parse(data.text)
                 //console.log(obj.data.entries)  
-                obj?.data?.entries?.forEach(element => {
-                    console.log(element.entry, element?.explain)
-                });
+                // obj?.data?.entries?.forEach(element => {
+                //     console.log(element.entry, element?.explain)
+                // });
 
                 if (obj?.data?.entries) {
                     setRecmendWordsArr(obj.data.entries)
@@ -136,8 +136,10 @@ export default function NewWordScreen() {
 
     }, [navigation]);
 
-
-
+    const [isExist, setIsExist] = useState(false)
+    // useEffect(() => {
+    //     console.log(isExist)
+    // }, [isExist])
 
 
     return (
@@ -179,8 +181,9 @@ export default function NewWordScreen() {
                         padding: 0,
                         paddingHorizontal: 0,
                         height: 60,
-                        width: screenWidth - 8 - 8, borderWidth: 1, borderColor: "black", backgroundColor: "#e7cca0",//backgroundColor:"#e7cca0",// ,backgroundColor: "#aaa",
+                        width: screenWidth - 8 - 8, borderWidth: 1, borderColor: "black",// backgroundColor: "#e7cca0",// ,backgroundColor: "#aaa",
                         justifyContent: "flex-start", alignItems: "flex-start",
+                        backgroundColor: isExist ? "#c3e1a2" : "#e7cca0",
                         paddingRight: 50,
                         borderBottomWidth: 0,
 
@@ -191,6 +194,7 @@ export default function NewWordScreen() {
 
                     onChangeText={function (text) {
                         setNewWordText(text)
+                        setIsExist(Boolean(allWords.find((element) => element.wordName === text)))
                         getWordsRecomendation(text)
                         // setTextContentEn(text)
                     }}
@@ -200,22 +204,86 @@ export default function NewWordScreen() {
                     }}
                 />
 
-                <View style={{ height: 60, width: 60, backgroundColor: "transparent", justifyContent: "center", alignItems: "center", position: "absolute", right: 8 }}>
+                <View style={{
+                    height: 60, width: 60, backgroundColor: "transparent", justifyContent: "center", alignItems: "center", position: "absolute", right: 8,
+                    
+                }}>
                     <Icon
+                        disabledStyle={{ backgroundColor: "transparent", opacity: 0 }}
                         disabled={!String(newWordText).match(/[\w\u4E00-\u9FFF]+/g)}
+
                         onPress={e => {
 
-                            const isExist = Boolean(allWords.find((element) => element.wordName === newWordText))
+                            //const isExist = Boolean(allWords.find((element) => element.wordName === newWordText))
+
+
+
                             speak(newWordText, newWordText)
 
+                           
+                            if (isExist) {
+                                setSouceWordArr(sourceWordArr => {
 
+                                    const word = sourceWordArr.find(word => {
+                                        return word.wordName === newWordText
+                                    })
+
+                                    if (word) {
+                                        const oldWord = JSON.parse(JSON.stringify(word))
+
+                                        oldWord.toppingTime = Date.now()
+                                        return [oldWord, ...sourceWordArr.filter(word => (word.wordName !== newWordText))]
+                                    }
+                                    else {
+                                        const oldWord = allWords.find(word => {
+                                            return word.wordName === newWordText
+                                        })
+                                        oldWord.toppingTime = Date.now()
+                                        return [oldWord, ...sourceWordArr]
+                                    }
+                                })
+
+                                setTimeout(() => {
+                                    saveWordToFile()
+                                }, 0);
+                            }
+                            else {
+                                const newWord = {
+                                    "wordName": newWordText,
+                                    "meaning": "",
+                                    "meaningSound": "",
+                                    "createTime": Date.now(),
+                                    "toppingTime": Date.now(),
+                                    "exampleEnglishArr": [],
+                                    "exampleChineseArr": [],
+                                    "level": 0,
+                                    "accent": "UK",
+                                    "showChinese": true,
+                                    "firstTimeAmount": 2,
+                                    "firstTimeMeaningAmount": 1,
+                                    "secondTimeAmount": 2,
+                                    "secondTimeMeaningAmount": 1
+                                }
+                                setSouceWordArr(pre => {
+                                    return [newWord, ...pre]
+                                })
+                                setAllwords(pre => {
+                                    return [newWord, ...pre]
+                                })
+
+                                setTimeout(() => {
+                                    saveWordToFile()
+                                    setIsExist(true)
+                                }, 100);
+
+                            }
                         }}
 
 
                         name="add-circle-outline" type='ionicon' color='orange'
                         containerStyle={{
                             width: 60, height: 60, transform: [{ rotateZ: "0deg" }], //backgroundColor: "#e7cca0",
-                            justifyContent: "center"
+                            justifyContent: "center",
                         }}
                         size={50}
                     />
@@ -317,6 +385,7 @@ export default function NewWordScreen() {
 
                                             setTimeout(() => {
                                                 saveWordToFile()
+                                                setIsExist(true)
                                             }, 100);
 
 

@@ -212,7 +212,8 @@ export default function ContextProvider(props) {
             if (wordFile.exists) {
 
                 const originalWordArr = JSON.parse(wordFile.textSync()).filter(element => element.wordName !== word.wordName)
-                wordFile.write(JSON.stringify(originalWordArr))
+                wordFile.write(JSON.stringify(originalWordArr), {})
+                isSaving.value = false
             }
 
             // FileSystem.readDirectoryAsync(FileSystem.documentDirectory).then(data => {
@@ -341,7 +342,7 @@ export default function ContextProvider(props) {
                 onStopped: () => {
                     resolveMethod(word2 + " Speech reading stopped")
                 }
-            }); 
+            });
         }
 
 
@@ -570,7 +571,7 @@ export default function ContextProvider(props) {
 
     }, 0, { leading: true, trailing: false })
 
-    const [newWordText,setNewWordText] = useState("")
+    const [newWordText, setNewWordText] = useState("")
     return (
 
         <Context.Provider value={{
@@ -584,7 +585,7 @@ export default function ContextProvider(props) {
             downloadWord, deleteDownloadWord, deleteWordToFile,
             stopSpeak, checkPlaying, speak,
             sentencePlayingIndex, autoPlay,
-            newWordText,setNewWordText
+            newWordText, setNewWordText
         }}>
 
             {props.children}
