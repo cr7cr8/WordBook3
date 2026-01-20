@@ -79,6 +79,11 @@ export function HeaderBar() {
     function goToAddNew() {
         navigation.navigate("NewWordScreen", { isAddNew: true })
     }
+    function goToSetting() {
+        navigation.navigate("SettingScreen", {})
+    }
+
+
 
     const playButtonStyle1 = useAnimatedStyle(() => {
         return {
@@ -121,7 +126,7 @@ export function HeaderBar() {
             const arr = JSON.parse(file.textSync())
 
             arr.sort((word1, word2) => { return word2.toppingTime - word1.toppingTime })
-          
+
 
             setSouceWordArr(arr)
         })
@@ -137,6 +142,40 @@ export function HeaderBar() {
 
         // console.log
     }
+
+    async function exportTextFile() {
+        console.log("exporting word text file ....")
+        // to do export textfile
+
+
+
+        const file = new File(Paths.document, "allwords.txt")
+
+
+        const directory = await Directory.pickDirectoryAsync("Documents");
+        const createdFile = directory.createFile("newWord" + Date.now() + ".txt", "application/json");
+
+        createdFile.write(file.textSync());
+        // file.exists && async function () {
+
+        //     const { status } = await MediaLibrary.requestPermissionsAsync();
+        //     if (status !== 'granted') {
+        //         alert('Permission to access media library is required!');
+        //         return;
+        //     }
+
+
+        //     try {
+        //         const asset = await MediaLibrary.createAssetAsync(file.uri);
+        //         console.log('Asset created:', asset);
+        //     } catch (error) {
+        //         console.error('Error creating asset:', error);
+        //     }
+
+        // }()
+    }
+
+
 
     return (
         <View style={{
@@ -231,7 +270,11 @@ export function HeaderBar() {
 
                         <GestureDetector gesture={Gesture.Tap().onEnd(() => {
 
-                            scheduleOnRN(loadTextFile)
+                            // scheduleOnRN(loadTextFile)
+                            //scheduleOnRN(goToSetting)
+
+                            scheduleOnRN(exportTextFile)
+
                         })}>
 
                             <Icon
@@ -303,9 +346,9 @@ export function RateBar() { //!!! Make sure the Card.js render first, then rende
 
 
     const localLevel = useDerivedValue(() => {
-      
+
         return sourceWordArr[Math.round(scrollX.value / screenWidth)].level
-    }, [scrollX.value,sourceWordArr])
+    }, [scrollX.value, sourceWordArr])
 
 
 

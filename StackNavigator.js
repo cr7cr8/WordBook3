@@ -39,6 +39,9 @@ import NewWordScreen from './NewWordScreen';
 // import SortingScreen from './SortingScreen';
 import SentenceSettingScreen from "./SentenceSettingScreen";
 
+import SettingScreen from './SettingScreen';
+
+
 
 //import * as FileSystem from 'expo-file-system';
 //import * as DocumentPicker from 'expo-document-picker';
@@ -286,6 +289,37 @@ export default function StackNavigator() {
                     //         component={function () { return <></> }}
                     component={SentenceSettingScreen}
                 />
+
+                <Stack.Screen name="SettingScreen"
+                    options={function ({ navigation, router }) {
+
+                        return {
+                            headerShown: false,
+                            // header: (props) => <Header {...props} />,
+                            // headerTitle: HomeScreenTitle,
+                            headerTransparent: true,
+
+                            // headerRight: () => (
+                            //   <Button
+                            //     title="delete"
+                            //     onPress={function () {
+
+                            //       AsyncStorage.getItem("token").then(token => {
+                            //         console.log(token)
+                            //         token && deleteFolder(token.userName)
+                            //         token && AsyncStorage.removeItem("token")
+                            //       })
+                            //     }}
+                            //   />
+                            // ),
+                        }
+
+                    }}
+                    //         component={function () { return <></> }}
+                    component={SettingScreen}
+                />
+
+
 
             </Stack.Navigator>
 
