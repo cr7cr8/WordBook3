@@ -136,7 +136,7 @@ function RightAction({ progress, drag, panel, sourceWord, index, visiblePanel, .
             <GestureDetector gesture={Gesture.Tap()
                 .onStart(() => {
 
-                
+
                     scheduleOnRN(goSentenceSetting)
                     panel?.close()
                 })
@@ -174,7 +174,7 @@ function LeftAction({ progress, drag, panel, sourceWord, index, visiblePanel, ..
 
 
 
-    const { autoPlay, isListPlaying, frameTransY, setSource, sourceWordArr, setSouceWordArr, saveWordToFile } = useContext(Context)
+    const { autoPlay, isListPlaying, frameTransY, setSource, sourceWordArr, setSouceWordArr, saveWordToFile, isNewerstOnTop } = useContext(Context)
     const styleAnimation = useAnimatedStyle(() => {
 
         return {
@@ -207,12 +207,17 @@ function LeftAction({ progress, drag, panel, sourceWord, index, visiblePanel, ..
             borderWidth: 0,
             borderBottomWidth: 1,
             borderBottomColor: "#D2B48C",
+            transform: [{ rotate: isNewerstOnTop.value ? "0deg" : "180deg" }]
         }
 
     })
 
 
     function topTime() {
+
+
+        console.log(isNewerstOnTop.value, ",,,dd,")
+
         setSouceWordArr(arr => {
             const arr_ = arr.map((item) => {
                 if (item.wordName !== sourceWord.wordName) {
@@ -222,7 +227,15 @@ function LeftAction({ progress, drag, panel, sourceWord, index, visiblePanel, ..
                     return { ...item, toppingTime: Date.now() }
                 }
             })
-            arr_.sort((word1, word2) => { return word2.toppingTime - word1.toppingTime })
+
+            if (isNewerstOnTop.value) {
+                arr_.sort((word1, word2) => { return word2.toppingTime - word1.toppingTime })
+            }
+            else {
+                arr_.sort((word1, word2) => { return word1.toppingTime - word2.toppingTime })
+            }
+
+
             return [...arr_]
         })
 

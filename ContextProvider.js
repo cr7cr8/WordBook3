@@ -54,6 +54,10 @@ export default function ContextProvider(props) {
 
     const [sourceWordArr, setSouceWordArr] = useState([])
 
+
+
+    const isNewerstOnTop = useSharedValue(true)
+
     //const directory = new Directory(Paths.document)
     // const [file] = useState(new File(Paths.document),"","allwords.txt")
     // directory.list()
@@ -110,7 +114,14 @@ export default function ContextProvider(props) {
 
         }
         else {
-            setSouceWordArr(JSON.parse(wordFile.textSync()))
+            const arr_ = JSON.parse(wordFile.textSync())
+            if (isNewerstOnTop.value) {
+                arr_.sort((word1, word2) => { return word2.toppingTime - word1.toppingTime })
+            }
+            else {
+                arr_.sort((word1, word2) => { return word1.toppingTime - word2.toppingTime })
+            }
+            setSouceWordArr(arr_)
         }
 
 
@@ -576,6 +587,7 @@ export default function ContextProvider(props) {
 
         <Context.Provider value={{
             sourceWordArr, setSouceWordArr,
+            isNewerstOnTop,
             saveWordToFile,
 
             wordPos, frameTransY, isListPlaying, scrollRef0, scrollRef, scrollRef2,

@@ -73,7 +73,8 @@ export function HeaderBar() {
 
 
     const { sourceWordArr, setSouceWordArr, scrollRef0, scrollRef, scrollRef2, frameTransY, wordPos, isListPlaying, preLeft, preTop, scrollY, scrollX,
-        isPanning, speak, autoPlay, stopSpeak, isScrollingY, isScrollingX, isCardMoving, isManualDrag, shouldHideWordBlock } = useContext(Context)
+        isPanning, speak, autoPlay, stopSpeak, isScrollingY, isScrollingX, isCardMoving, isManualDrag, shouldHideWordBlock, isNewerstOnTop,
+    } = useContext(Context)
 
     const navigation = useNavigation()
     function goToAddNew() {
@@ -83,7 +84,20 @@ export function HeaderBar() {
         navigation.navigate("SettingScreen", {})
     }
 
+    function reverseOrder() {
 
+
+        isNewerstOnTop.value = !isNewerstOnTop.value
+
+
+        setSouceWordArr(arr => {
+
+            return arr.slice(0, arr.length).reverse()
+
+            // return JSON.parse(JSON.stringify([...arr.reverse()]))
+
+        })
+    }
 
     const playButtonStyle1 = useAnimatedStyle(() => {
         return {
@@ -153,8 +167,8 @@ export function HeaderBar() {
 
 
         const directory = await Directory.pickDirectoryAsync("Documents");
-        const createdFile = directory.createFile("newWord" + Date.now() + ".txt", "application/json");
-
+        //const createdFile = directory.createFile("newWord" + Date.now() + ".txt", "application/json");
+        const createdFile = directory.createFile(("" + Date.now()).slice(0, 10), "text/plain");
         createdFile.write(file.textSync());
         // file.exists && async function () {
 
@@ -256,13 +270,22 @@ export function HeaderBar() {
                         </GestureDetector>
 
                         <GestureDetector gesture={Gesture.Tap().onEnd(() => {
+                            console.log("refresh")
+
+                            runOnJS(reverseOrder)()
+
+
 
 
                         })}>
 
                             <Icon
-                                name="refresh-outline" type='ionicon' color='orange'
-                                containerStyle={{ width: 40, height: 40, transform: [{ rotateZ: "180deg" }] }}
+                               // name="swap-horizontal-outline" 
+                                name="chevron-up-circle-outline"
+                                type='ionicon' color='orange'
+
+                                //
+                                containerStyle={{ width: 40, height: 40, transform: [{ rotateZ: "0deg" }] }}
                                 size={40}
                             />
                         </GestureDetector>

@@ -67,7 +67,7 @@ import {
 
 export default function NewWordScreen() {
     const navigation = useNavigation()
-    const { speak, sourceWordArr, setSouceWordArr, saveWordToFile, isSaving, newWordText, setNewWordText } = useContext(Context)
+    const { speak, sourceWordArr, setSouceWordArr, saveWordToFile, isSaving, newWordText, setNewWordText, isNewerstOnTop } = useContext(Context)
     const newWordPanelStyle = useAnimatedStyle(() => {
 
         return {
@@ -206,7 +206,7 @@ export default function NewWordScreen() {
 
                 <View style={{
                     height: 60, width: 60, backgroundColor: "transparent", justifyContent: "center", alignItems: "center", position: "absolute", right: 8,
-                    
+
                 }}>
                     <Icon
                         disabledStyle={{ backgroundColor: "transparent", opacity: 0 }}
@@ -215,12 +215,12 @@ export default function NewWordScreen() {
                         onPress={e => {
 
                             //const isExist = Boolean(allWords.find((element) => element.wordName === newWordText))
-
+                            console.log("Fdsfsd")
 
 
                             speak(newWordText, newWordText)
 
-                           
+
                             if (isExist) {
                                 setSouceWordArr(sourceWordArr => {
 
@@ -232,14 +232,25 @@ export default function NewWordScreen() {
                                         const oldWord = JSON.parse(JSON.stringify(word))
 
                                         oldWord.toppingTime = Date.now()
-                                        return [oldWord, ...sourceWordArr.filter(word => (word.wordName !== newWordText))]
+
+
+                                        if (isNewerstOnTop.value) {
+
+                                            return [oldWord, ...sourceWordArr.filter(word => (word.wordName !== newWordText))]
+                                        }
+                                        else {
+                                            return [...sourceWordArr.filter(word => (word.wordName !== newWordText)), oldWord]
+                                        }
+
+
+
                                     }
                                     else {
                                         const oldWord = allWords.find(word => {
                                             return word.wordName === newWordText
                                         })
                                         oldWord.toppingTime = Date.now()
-                                        return [oldWord, ...sourceWordArr]
+                                        return isNewerstOnTop.value ? [oldWord, ...sourceWordArr] : [...sourceWordArr, oldWord]
                                     }
                                 })
 
@@ -265,7 +276,7 @@ export default function NewWordScreen() {
                                     "secondTimeMeaningAmount": 1
                                 }
                                 setSouceWordArr(pre => {
-                                    return [newWord, ...pre]
+                                    return isNewerstOnTop.value ? [newWord, ...pre] : [...pre, newWord]
                                 })
                                 setAllwords(pre => {
                                     return [newWord, ...pre]
@@ -343,14 +354,29 @@ export default function NewWordScreen() {
                                                     const oldWord = JSON.parse(JSON.stringify(word))
 
                                                     oldWord.toppingTime = Date.now()
-                                                    return [oldWord, ...sourceWordArr.filter(word => (word.wordName !== item.entry))]
+                                                    // return [oldWord, ...sourceWordArr.filter(word => (word.wordName !== item.entry))]
+
+
+                                                    if (isNewerstOnTop.value) {
+
+                                                        return [oldWord, ...sourceWordArr.filter(word => (word.wordName !== newWordText))]
+                                                    }
+                                                    else {
+                                                        return [...sourceWordArr.filter(word => (word.wordName !== newWordText)), oldWord]
+                                                    }
+
                                                 }
                                                 else {
                                                     const oldWord = allWords.find(word => {
                                                         return word.wordName === item.entry
                                                     })
                                                     oldWord.toppingTime = Date.now()
-                                                    return [oldWord, ...sourceWordArr]
+                                                    return isNewerstOnTop.value ? [oldWord, ...sourceWordArr] : [...sourceWordArr, oldWord]
+
+
+
+
+
                                                 }
                                             })
 
@@ -377,7 +403,8 @@ export default function NewWordScreen() {
                                                 "secondTimeMeaningAmount": 1
                                             }
                                             setSouceWordArr(pre => {
-                                                return [newWord, ...pre]
+
+                                                return isNewerstOnTop.value ? [newWord, ...pre] : [...pre, newWord]
                                             })
                                             setAllwords(pre => {
                                                 return [newWord, ...pre]
