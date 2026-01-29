@@ -695,10 +695,10 @@ export function DragblePannel({ item, drag, isActive, getIndex, allPannelArr }) 
                                         // newPanelHeight.value = 80
                                         //console.log("save new added sentence",Date.now())
                                         //saveWordToFile()
-                                    
+
                                         newPanelHeight.value = withTiming(80, { duration: 300 }, () => {
                                             //console.log(Date.now())
-                                            item.isNewAdded = false 
+                                            item.isNewAdded = false
                                             scheduleOnRN(delayToSaveWordToFile, 0)
                                         })
                                     }
@@ -1024,7 +1024,7 @@ function HeadRight({ props, sourceWord }) {
                     deleteWordToFile(sourceWord)
                 }, 100);
 
-
+                setRefreshState(Math.random())
                 return arr
             })
         }, 0);
