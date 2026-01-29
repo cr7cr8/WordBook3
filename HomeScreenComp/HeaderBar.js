@@ -73,7 +73,7 @@ export function HeaderBar() {
 
 
     const { sourceWordArr, setSouceWordArr, scrollRef0, scrollRef, scrollRef2, frameTransY, wordPos, isListPlaying, preLeft, preTop, scrollY, scrollX,
-        isPanning, speak, autoPlay, stopSpeak, isScrollingY, isScrollingX, isCardMoving, isManualDrag, shouldHideWordBlock, isNewerstOnTop,
+        isPanning, speak, autoPlay, stopSpeak, isScrollingY, isScrollingX, isCardMoving, isManualDrag, shouldHideWordBlock, isNewerstOnTop, setRefreshState
     } = useContext(Context)
 
     const navigation = useNavigation()
@@ -274,20 +274,28 @@ export function HeaderBar() {
 
                             runOnJS(reverseOrder)()
 
-
+                            scheduleOnRN(setRefreshState, Math.random())
 
 
                         })}>
+                            <View style={useAnimatedStyle(() => {
+                                return {
 
-                            <Icon
-                               // name="swap-horizontal-outline" 
-                                name="chevron-up-circle-outline"
-                                type='ionicon' color='orange'
+                                    transform: [{ rotate: isNewerstOnTop.value ? withTiming("0deg") : withTiming("-180deg") }]
 
-                                //
-                                containerStyle={{ width: 40, height: 40, transform: [{ rotateZ: "0deg" }] }}
-                                size={40}
-                            />
+                                }
+
+                            })}>
+                                <Icon
+                                    // name="swap-horizontal-outline" 
+                                    name="chevron-up-circle-outline"
+                                    type='ionicon' color='orange'
+
+                                    //
+                                    containerStyle={{ width: 40, height: 40, transform: [{ rotateZ: "0deg" }] }}
+                                    size={40}
+                                />
+                            </View>
                         </GestureDetector>
 
 

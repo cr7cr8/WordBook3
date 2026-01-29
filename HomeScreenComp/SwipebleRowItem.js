@@ -174,7 +174,7 @@ function LeftAction({ progress, drag, panel, sourceWord, index, visiblePanel, ..
 
 
 
-    const { autoPlay, isListPlaying, frameTransY, setSource, sourceWordArr, setSouceWordArr, saveWordToFile, isNewerstOnTop } = useContext(Context)
+    const { autoPlay, isListPlaying, frameTransY, setSource, sourceWordArr, setSouceWordArr, saveWordToFile, isNewerstOnTop, setRefreshState } = useContext(Context)
     const styleAnimation = useAnimatedStyle(() => {
 
         return {
@@ -238,8 +238,9 @@ function LeftAction({ progress, drag, panel, sourceWord, index, visiblePanel, ..
 
             return [...arr_]
         })
-
+        setRefreshState(Math.random())
         setTimeout(() => {
+
             saveWordToFile()
         }, 0);
     }

@@ -266,7 +266,7 @@ export default function NewWordScreen() {
                                         return isNewerstOnTop.value ? [oldWord, ...sourceWordArr] : [...sourceWordArr, oldWord]
                                     }
                                 })
-
+                                setRefreshState(Math.random())
                                 setIsExist(true)
                                 setTimeout(() => {
                                     saveWordToFile()
@@ -295,10 +295,9 @@ export default function NewWordScreen() {
                                 setAllwords(pre => {
                                     return [newWord, ...pre]
                                 })
-
+                                setRefreshState(Math.random())
                                 setIsExist(true)
                                 setTimeout(() => {
-                                    setRefreshState(Math.random())
                                     saveWordToFile()
                                 }, 100);
 
@@ -393,7 +392,7 @@ export default function NewWordScreen() {
                                             if (item.entry == newWordText) {
                                                 setIsExist(true)
                                             }
-
+                                            setRefreshState(Math.random())
                                             setTimeout(() => {
                                                 saveWordToFile()
                                             }, 0);
@@ -428,8 +427,8 @@ export default function NewWordScreen() {
                                             if (item.entry == newWordText) {
                                                 setIsExist(true)
                                             }
+                                            setRefreshState(Math.random())
                                             setTimeout(() => {
-                                                setRefreshState(Math.random())
                                                 saveWordToFile()
                                             }, 100);
 
