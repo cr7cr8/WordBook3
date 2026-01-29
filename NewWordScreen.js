@@ -67,7 +67,7 @@ import {
 
 export default function NewWordScreen() {
     const navigation = useNavigation()
-    const { speak, sourceWordArr, setSouceWordArr, saveWordToFile, isSaving, newWordText, setNewWordText, isNewerstOnTop } = useContext(Context)
+    const { speak, sourceWordArr, setSouceWordArr, saveWordToFile, isSaving, newWordText, setNewWordText, isNewerstOnTop, setRefreshState } = useContext(Context)
     const newWordPanelStyle = useAnimatedStyle(() => {
 
         return {
@@ -116,13 +116,29 @@ export default function NewWordScreen() {
 
     }, 1000, { leading: false, trailing: true })
 
+    const [isExist, setIsExist] = useState(false)
+    // useEffect(() => {
+    //     console.log(isExist)
+    // }, [isExist])
     useEffect(() => {
 
         const unsubscribe = navigation.addListener('focus', () => {
             //  !isListPlaying.value && playSound0(sourceWordArr[wordPos.value].wordName)
 
             const file = new File(Paths.document, "allwords.txt")
-            setAllwords(JSON.parse(file.textSync()))
+            setAllwords(() => {
+
+                const allWords = JSON.parse(file.textSync())
+                setIsExist(Boolean(allWords.find((element) => element.wordName === newWordText)))
+                return allWords
+            })
+
+            // setTimeout(() => {
+            //     console.log("ffdfs", allWords)
+
+            // }, 0);
+
+
 
             // FileSystem.readAsStringAsync(FileSystem.documentDirectory + "allwords.txt").then(content => {
             //     setAllwords(JSON.parse(content))
@@ -136,10 +152,7 @@ export default function NewWordScreen() {
 
     }, [navigation]);
 
-    const [isExist, setIsExist] = useState(false)
-    // useEffect(() => {
-    //     console.log(isExist)
-    // }, [isExist])
+
 
 
     return (
@@ -215,7 +228,7 @@ export default function NewWordScreen() {
                         onPress={e => {
 
                             //const isExist = Boolean(allWords.find((element) => element.wordName === newWordText))
-                            console.log("Fdsfsd")
+                            console.log("Fdsfsffaaaaaaaaaaad")
 
 
                             speak(newWordText, newWordText)
@@ -254,6 +267,7 @@ export default function NewWordScreen() {
                                     }
                                 })
 
+                                setIsExist(true)
                                 setTimeout(() => {
                                     saveWordToFile()
                                 }, 0);
@@ -282,9 +296,10 @@ export default function NewWordScreen() {
                                     return [newWord, ...pre]
                                 })
 
+                                setIsExist(true)
                                 setTimeout(() => {
+                                    setRefreshState(Math.random())
                                     saveWordToFile()
-                                    setIsExist(true)
                                 }, 100);
 
                             }
@@ -340,7 +355,7 @@ export default function NewWordScreen() {
                                 <TouchableOpacity activeOpacity={0.2}
 
                                     onPress={function (e) {
-                                        //console.log(item.entry)
+                                        console.log(item.entry, "ddddddddddsssssss'''''''ddddd''''")
                                         speak(item.entry, item.entry)
 
                                         if (isExist) {
@@ -359,10 +374,10 @@ export default function NewWordScreen() {
 
                                                     if (isNewerstOnTop.value) {
 
-                                                        return [oldWord, ...sourceWordArr.filter(word => (word.wordName !== newWordText))]
+                                                        return [oldWord, ...sourceWordArr.filter(word => (word.wordName !== item.entry))]
                                                     }
                                                     else {
-                                                        return [...sourceWordArr.filter(word => (word.wordName !== newWordText)), oldWord]
+                                                        return [...sourceWordArr.filter(word => (word.wordName !== item.entry)), oldWord]
                                                     }
 
                                                 }
@@ -372,13 +387,12 @@ export default function NewWordScreen() {
                                                     })
                                                     oldWord.toppingTime = Date.now()
                                                     return isNewerstOnTop.value ? [oldWord, ...sourceWordArr] : [...sourceWordArr, oldWord]
-
-
-
-
-
                                                 }
                                             })
+
+                                            if (item.entry == newWordText) {
+                                                setIsExist(true)
+                                            }
 
                                             setTimeout(() => {
                                                 saveWordToFile()
@@ -410,16 +424,16 @@ export default function NewWordScreen() {
                                                 return [newWord, ...pre]
                                             })
 
-                                            setTimeout(() => {
-                                                saveWordToFile()
+
+                                            if (item.entry == newWordText) {
                                                 setIsExist(true)
+                                            }
+                                            setTimeout(() => {
+                                                setRefreshState(Math.random())
+                                                saveWordToFile()
                                             }, 100);
 
-
                                         }
-
-
-
                                     }}
 
                                 >
