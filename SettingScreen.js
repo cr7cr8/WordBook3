@@ -65,7 +65,7 @@ const headHeight = 80;// getStatusBarHeight() > 24 ? 80 : 60
 
 
 
-import { ListItem, Avatar, LinearProgress, Tooltip, Icon, Input } from 'react-native-elements';
+import { ListItem, Avatar, LinearProgress, Tooltip, Icon, Input, Switch } from 'react-native-elements';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDebounce, useDebouncedCallback, useThrottledCallback } from 'use-debounce';
 
@@ -88,15 +88,7 @@ import { BackHandler } from 'react-native';
 //import { DragblePannel, HeadPannel, EditorCard } from './SentenceSettingScreenComp/DragblePannel';
 //import { DragblePannel } from "./SentenceSettingScreenComp/DragblePannel"
 import { DragblePannel, HeadPannel, EditorCard } from './SentenceSettingScreenComp/DragblePannel';
-BackHandler.addEventListener('hardwareBackPress', function () {
-    // Custom logic for handling back button press
-    // if (!this.onMainScreen()) {
-    //     this.goBack();
-    //     return true; // Prevents the default back action
-
-    // }
-    return false; // Allows the default back action 
-});
+import { scheduleOnRN } from 'react-native-worklets';
 
 
 
@@ -105,9 +97,206 @@ BackHandler.addEventListener('hardwareBackPress', function () {
 
 
 export default function SettingScreen() {
+    const { setSouceWordArr, saveWordToFile, sourceWordArr, refreshState, setRefreshState, wordPos, scrollX, scrollRef0,
+        scrollRef, scrollRef2, preTop,
+
+
+        selectedLevelArr, isNewerstOnTop } = useContext(Context)
 
 
 
-    return <Text>fff</Text>
+    const file = new File(Paths.document, "allwords.txt")
+    const allWords = JSON.parse(file.textSync())
 
+    const navigation = useNavigation()
+    function filterLevel() {
+        setSouceWordArr(arr => {
+
+
+            const newArr = allWords.filter((word, index) => {
+                // console.log(word.level, index, selectedLevelArr.value[word.level])
+                return selectedLevelArr.value[word.level] === true
+
+
+            })
+            if (isNewerstOnTop.value) {
+                newArr.sort((word1, word2) => { return word2.toppingTime - word1.toppingTime })
+            }
+            else {
+                newArr.sort((word1, word2) => { return word1.toppingTime - word2.toppingTime })
+            }
+
+
+            if (arr.length !== newArr.length) {
+                wordPos.value = 0
+                scrollRef.current._scrollViewRef.scrollTo({ y: 0, animated: true })
+                scrollRef2.current._scrollViewRef.scrollTo({ x: 0, animated: true })
+                preTop.value = headHeight
+            }
+
+          
+            return newArr
+        })
+    }
+
+
+
+    useEffect(() => {
+
+        //navigation.removeListener("focus")
+
+        let backHandler;
+        const unsubscribe = navigation.addListener('focus', () => {
+
+            backHandler = BackHandler.addEventListener('hardwareBackPress', function () {
+
+                console.log("aastttt", "isNewestOnTop", isNewerstOnTop.value)
+                setTimeout(() => {
+                    filterLevel()
+                }, 0);
+
+
+                return false; // Allows the default back action 
+            });
+        });
+        return function () { unsubscribe(); backHandler?.remove(); }
+
+    }, []);
+
+
+
+    const settingPanelStyle = useAnimatedStyle(() => {
+
+        return {
+
+            backgroundColor: "wheat",//"#c3e1a2",
+
+            height: screenHeight,
+            width: screenWidth,
+
+
+            overflow: "hidden",
+
+            top: 0,// headBarHeight,
+
+        }
+
+    })
+
+    const [checked, setChecked] = useState(isNewerstOnTop.value)
+
+
+
+
+
+    return (
+
+        <>
+            <View style={[settingPanelStyle]}>
+
+                <RateBar />
+
+                <Switch
+                    //thumbColor={"green"}
+                    color='orange'
+
+                    style={{
+                        height: 40, width: 80, backgroundColor: "rgba(122,114,225,0.3)",
+                        transform: [{ scale: 1.5 }]
+                    }}
+                    value={checked}
+                    onValueChange={(value) => {
+                        setChecked(value)
+                        isNewerstOnTop.value = value
+
+                    }}
+                />
+            </View>
+
+
+
+        </>
+
+    )
+}
+
+
+function RateBar() { //!!! Make sure the Card.js render first, then render this component!!!
+
+    const { setSouceWordArr, saveWordToFile, sourceWordArr, refreshState, setRefreshState, wordPos, scrollX, scrollRef0, selectedLevelArr, isNewerstOnTop } = useContext(Context)
+
+    console.log(selectedLevelArr.value)
+
+
+
+
+
+
+
+    return (
+
+
+
+        <View style={useAnimatedStyle(() => {
+
+            return {
+                backgroundColor: "transparent",// isDownloaded.value ? "wheat" : "#e7cca0",
+                width: screenWidth, height: headHeight, flexDirection: "row",
+                justifyContent: "space-evenly",
+                alignItems: "flex-end",
+                padding: 0, margin: 0, paddingHorizontal: 0, marginHorizontal: 0,
+                paddingBottom: 4,
+
+            }
+        })}>
+
+            {[0, 1, 2, 3, 4, 5].map((levelIndex, index) => {
+
+
+                return <GestureDetector key={index} gesture={Gesture.Tap().onStart(e => {
+
+                    console.log(index)
+                    selectedLevelArr.modify(arr => {
+                        arr[index] = !arr[index]
+                        return arr
+                    })
+                    // scheduleOnRN(filterLevel)
+                })} >
+                    <View style={
+
+                        [useAnimatedStyle(() => {
+                            return {
+                                width: 40, height: 40, borderRadius: 999, borderColor: "orange", flexDirection: "row",
+                                borderWidth: 1, justifyContent: "center", alignItems: "center",
+
+
+                                backgroundColor: selectedLevelArr.value[index]
+                                    ? "orange"
+                                    : "transparent",
+
+                                padding: 0, margin: 0, paddingHorizontal: 0, marginHorizontal: 0
+                            }
+                        })]
+                    }>
+
+                        <Text style={[
+                            useAnimatedStyle(() => {
+
+
+                                return { color: selectedLevelArr.value[index] ? "wheat" : "orange", fontSize: 15, fontWeight: "900" }
+                            }),
+                        ]}>{levelIndex}</Text>
+
+                    </View>
+
+                </GestureDetector>
+            })
+
+            }
+
+
+
+        </View >
+
+    )
 }

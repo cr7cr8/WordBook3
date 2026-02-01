@@ -583,6 +583,9 @@ export default function ContextProvider(props) {
     }, 0, { leading: true, trailing: false })
 
     const [newWordText, setNewWordText] = useState("")
+
+    const selectedLevelArr = useSharedValue([true,true,true,true,true,true])
+
     return (
 
         <Context.Provider value={{
@@ -597,7 +600,8 @@ export default function ContextProvider(props) {
             downloadWord, deleteDownloadWord, deleteWordToFile,
             stopSpeak, checkPlaying, speak,
             sentencePlayingIndex, autoPlay,
-            newWordText, setNewWordText
+            newWordText, setNewWordText,
+            selectedLevelArr
         }}>
 
             {props.children}

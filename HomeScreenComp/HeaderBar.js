@@ -301,10 +301,11 @@ export function HeaderBar() {
 
                         <GestureDetector gesture={Gesture.Tap().onEnd(() => {
 
-                            // scheduleOnRN(loadTextFile)
-                            //scheduleOnRN(goToSetting)
+                            //scheduleOnRN(loadTextFile)
+                            
+                            scheduleOnRN(goToSetting)
 
-                            scheduleOnRN(exportTextFile)
+                            //scheduleOnRN(exportTextFile)
 
                         })}>
 
