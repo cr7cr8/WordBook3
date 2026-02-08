@@ -601,7 +601,8 @@ export default function ContextProvider(props) {
             stopSpeak, checkPlaying, speak,
             sentencePlayingIndex, autoPlay,
             newWordText, setNewWordText,
-            selectedLevelArr
+            selectedLevelArr,
+            isSaving
         }}>
 
             {props.children}

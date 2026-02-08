@@ -15,7 +15,8 @@ import { StyleSheet, Button, Dimensions, TouchableOpacity, SafeAreaView, Refresh
 const screenWidth = Dimensions.get('screen').width
 const screenHeight = Dimensions.get('screen').height
 import superagent, { source } from "superagent"
-import * as FileSystem from 'expo-file-system';
+//import * as FileSystem from 'expo-file-system';
+import { File, Directory, Paths } from 'expo-file-system';
 import {
     Gesture,
     GestureDetector,
@@ -92,11 +93,80 @@ export default function HomeScreen() {
 
 
 
-    const { sourceWordArr, scrollRef0, scrollRef, scrollRef2, frameTransY, wordPos, isListPlaying, preLeft, preTop, scrollY, scrollX,
-        isPanning, speak, autoPlay, stopSpeak, isScrollingY, isScrollingX, isCardMoving, isManualDrag, shouldHideWordBlock } = useContext(Context)
+
+
+    const { sourceWordArr, setSouceWordArr, scrollRef0, scrollRef, scrollRef2, frameTransY, wordPos, isListPlaying, preLeft, preTop, scrollY, scrollX, refreshState, setRefreshState,
+        isPanning, speak, autoPlay, stopSpeak, isScrollingY, isScrollingX, isCardMoving, isManualDrag, shouldHideWordBlock ,selectedLevelArr,isNewerstOnTop} = useContext(Context)
+
+
+    // const navigation = useNavigation()
+    // const route = useRoute()
 
 
 
+    // useEffect(() => {
+
+    //     //navigation.removeListener("focus")
+
+
+    //     const unsubscribe = navigation.addListener('focus', () => {
+
+    //         console.log("backssdds", route.params, refreshState)
+    //         if (refreshState == "need sort") {
+
+    //             const file = new File(Paths.document, "allwords.txt")
+    //             const allWords = JSON.parse(file.textSync())
+
+
+    //             setSouceWordArr(arr => {
+
+
+    //                 const newArr = allWords.filter((word, index) => {
+    //                     // console.log(word.level, index, selectedLevelArr.value[word.level])
+    //                     return selectedLevelArr.value[word.level] === true
+
+
+    //                 })
+    //                 if (isNewerstOnTop.value) {
+    //                     newArr.sort((word1, word2) => { return word2.toppingTime - word1.toppingTime })
+    //                 }
+    //                 else {
+    //                     newArr.sort((word1, word2) => { return word1.toppingTime - word2.toppingTime })
+    //                 }
+
+
+    //                 if (arr.length !== newArr.length) {
+    //                     wordPos.value = 0
+    //                     scrollRef.current._scrollViewRef.scrollTo({ y: 0, animated: true })
+    //                     scrollRef2.current._scrollViewRef.scrollTo({ x: 0, animated: true })
+    //                     preTop.value = headHeight
+    //                 }
+
+
+    //                 return newArr
+    //             })
+    //             setRefreshState(Math.random())
+    //         }
+    //         else {
+
+    //         }
+
+    //     });
+
+
+
+    //     return function () {
+
+
+
+
+    //         unsubscribe();
+
+
+
+    //     }
+
+    // }, [refreshState,selectedLevelArr]);
 
 
 
@@ -401,7 +471,7 @@ export default function HomeScreen() {
 
                             if ((isListPlaying.value == false) && (isManualDrag.value)) {
                                 wordPos.value = Math.round(e.nativeEvent.contentOffset.x / screenWidth)
-                           
+
 
                                 if (e.nativeEvent.contentOffset.x - startPos) {
                                     speak(
