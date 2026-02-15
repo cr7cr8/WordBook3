@@ -107,6 +107,7 @@ export default function ContextProvider(props) {
                     toppingTime: now - random + 5000,
                 }
             })
+            largeIndex.value = Math.max(0, arr.length - 1)
             setSouceWordArr(arr)
             setTimeout(() => {
                 saveWordToFile()
@@ -115,6 +116,7 @@ export default function ContextProvider(props) {
         }
         else {
             const arr_ = JSON.parse(wordFile.textSync())
+             largeIndex.value = Math.max(0, arr_.length - 1)
             if (isNewerstOnTop.value) {
                 arr_.sort((word1, word2) => { return word2.toppingTime - word1.toppingTime })
             }
@@ -584,7 +586,10 @@ export default function ContextProvider(props) {
 
     const [newWordText, setNewWordText] = useState("")
 
-    const selectedLevelArr = useSharedValue([true,true,true,true,true,true])
+    const selectedLevelArr = useSharedValue([true, true, true, true, true, true])
+    const smallIndex = useSharedValue(0)
+    const largeIndex = useSharedValue(Math.max(0, sourceWordArr.length - 1))
+
 
     return (
 
@@ -601,7 +606,7 @@ export default function ContextProvider(props) {
             stopSpeak, checkPlaying, speak,
             sentencePlayingIndex, autoPlay,
             newWordText, setNewWordText,
-            selectedLevelArr,
+            selectedLevelArr, smallIndex, largeIndex,
             isSaving
         }}>
 
