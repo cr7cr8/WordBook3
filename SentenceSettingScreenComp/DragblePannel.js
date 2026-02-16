@@ -921,7 +921,7 @@ function HeadRight({ props, sourceWord }) {
 
     const { sourceWordArr, setSouceWordArr, saveWordToFile, downloadWord, deleteDownloadWord, isScrollingY,
         isScrollingX,
-        setRefreshState, wordPos, scrollRef, scrollRef2, isListPlaying, deleteWordToFile } = useContext(Context)
+        setRefreshState, wordPos, scrollRef, scrollRef2, isListPlaying, deleteWordToFile, smallIndex, largeIndex } = useContext(Context)
 
     const progress = props[0]
     const dragWidth = props[1]
@@ -990,45 +990,66 @@ function HeadRight({ props, sourceWord }) {
     }
 
     function deleteWord() {
-
+        console.log(sourceWord.level, "-----------------")
         navigate.goBack()
 
+
+
         setTimeout(() => {
-            setSouceWordArr(sourceWordArr => {
 
-                const arr = sourceWordArr.filter((word, index, arr) => {
-                    if (sourceWord.wordName === word.wordName) {
-                        if (wordPos.value === arr.length - 1) {
-                            wordPos.value = 0
-                            scrollRef.current._scrollViewRef.scrollTo({ y: 0, animated: true })
-                            scrollRef2.current._scrollViewRef.scrollTo({ x: 0, animated: true })
-                        }
-
+            console.log("start deleting word")
+            const arr = sourceWordArr.filter((word, index, arr) => {
+                if (sourceWord.wordName === word.wordName) {
+                    if (wordPos.value === arr.length - 1) {
+                        wordPos.value = 0
+                        scrollRef.current._scrollViewRef.scrollTo({ y: 0, animated: true })
+                        scrollRef2.current._scrollViewRef.scrollTo({ x: 0, animated: true })
                     }
 
-                    return sourceWord.wordName !== word.wordName
-                })
+                }
 
-                const hashName1 = CryptoJS(sourceWord.wordName).toString()
-
-                const directory = new Directory(Paths.document)
-                directory.list().forEach(file => {
-                    if (file.name.substring(0, 64) === hashName1) {
-                        console.log("deleting file", file.name)
-                        file.delete()
-                    }
-                })
-
-
-                setTimeout(() => {
-                    deleteWordToFile(sourceWord)
-                }, 100);
-
-                setRefreshState(Math.random())
-                return arr
+                return sourceWord.wordName !== word.wordName
             })
-        }, 0);
 
+            const hashName1 = CryptoJS(sourceWord.wordName).toString()
+            const directory = new Directory(Paths.document)
+            directory.list().forEach(file => {
+                if (file.name.substring(0, 64) === hashName1) {
+                    console.log("deleting file", file.name)
+                    file.delete()
+                }
+            })
+
+            if (largeIndex.value > arr.length - 1) {
+                largeIndex.value = Math.max(0, arr.length - 1)
+            }
+            if (smallIndex.value > arr.length - 1) {
+                smallIndex.value = Math.max(0, arr.length - 1)
+            }
+
+
+            setTimeout(() => {
+                deleteWordToFile(sourceWord)
+            }, 100);
+
+            setRefreshState(Math.random())
+            
+
+
+
+            setTimeout(() => {
+                setSouceWordArr(sourceWordArr => {
+                    return arr
+                })
+            }, sourceWordArr.length>1?0:500);// need 500 second to make sure scroll animation finish
+
+
+
+
+
+
+
+        }, 0); 
 
 
 

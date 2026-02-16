@@ -267,7 +267,7 @@ export default function HomeScreen() {
     })
 
 
-
+  
 
 
 
@@ -498,6 +498,8 @@ export default function HomeScreen() {
 
 
             <ScrollPivot />
+      
+      
         </View>
 
 

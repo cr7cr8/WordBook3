@@ -163,16 +163,32 @@ export default function SettingScreen() {
             newArr.sort((word1, word2) => { return word1.toppingTime - word2.toppingTime })
         }
 
+        // if (wordPos.value >= newArr.length) {
+        //     wordPos.value = 0;
+        //     scrollX.value = 0
+        //     scrollRef.current._scrollViewRef.scrollTo({ y: 0, animated: true })
+        //     scrollRef2.current._scrollViewRef.scrollTo({ x: 0, animated: true })
+        //     preTop.value = headHeight
+        // }
 
+
+
+
+
+
+        // if (arr.length !== newArr.length) {
         wordPos.value = 0
         scrollRef.current._scrollViewRef.scrollTo({ y: 0, animated: true })
         scrollRef2.current._scrollViewRef.scrollTo({ x: 0, animated: true })
         preTop.value = headHeight
-  
+        // }
+
         setTimeout(() => {
             setSouceWordArr(newArr)
             isSaving.value = false
-        }, newArr.length>1?500:500);// need 500 second to make sure scroll animation finish
+        }, 500);
+
+
 
 
         selectedLevelArr.modify(arr => {

@@ -92,7 +92,7 @@ export default function ContextProvider(props) {
     )
 
 
-
+    
     const isNewerstOnTop = useSharedValue(true)
     const selectedLevelArr = useSharedValue([true, true, true, true, true, true])
     const smallIndex = useSharedValue(0)
@@ -120,53 +120,41 @@ export default function ContextProvider(props) {
             configObj = JSON.parse(configFile.textSync())
             console.log(configObj)
 
-            isNewerstOnTop.value = configObj.isNewerstOnTop
-            selectedLevelArr.value = configObj.selectedLevelArr
-            smallIndex.value = configObj.smallIndex
-            largeIndex.value = configObj.largeIndex
         }
 
-        setTimeout(() => {
-            const wordFile = new File(Paths.document, "allwords.txt")
-            !wordFile.exists && wordFile.create({ intermediates: true, overwrite: false })
 
-            if (wordFile.size === 0) {
+        const wordFile = new File(Paths.document, "allwords.txt")
+        !wordFile.exists && wordFile.create({ intermediates: true, overwrite: false })
 
-                const now = Date.now()
-                let arr = defaultwordsArr.map((word, index) => {
-                    const random = Math.floor(Math.random() * 10000000)
-                    return {
-                        ...word,
-                        createTime: now - random,
-                        toppingTime: now - random + 5000,
-                    }
-                })
+        if (wordFile.size === 0) {
 
-                const pos = Math.round(Math.random() * 1500)
-                arr = arr.slice(pos, pos + 3)
+            const now = Date.now()
+            const arr = defaultwordsArr.map((word, index) => {
+                const random = Math.floor(Math.random() * 10000000)
+                return {
+                    ...word,
+                    createTime: now - random,
+                    toppingTime: now - random + 5000,
+                }
+            })
+            largeIndex.value = Math.max(0, arr.length - 1)
+            setSouceWordArr(arr)
+            setTimeout(() => {
+                saveWordToFile()
+            }, 100);
 
-                largeIndex.value = Math.max(0, arr.length - 1)
-                setSouceWordArr(arr)
-                setTimeout(() => {
-                    saveWordToFile()
-                }, 100);
-
+        }
+        else {
+            const arr_ = JSON.parse(wordFile.textSync())
+            largeIndex.value = Math.max(0, arr_.length - 1)
+            if (isNewerstOnTop.value) {
+                arr_.sort((word1, word2) => { return word2.toppingTime - word1.toppingTime })
             }
             else {
-                const arr_ = JSON.parse(wordFile.textSync())
-                largeIndex.value = Math.max(0, arr_.length - 1)
-
-
-                if (isNewerstOnTop.value) {
-                    arr_.sort((word1, word2) => { return word2.toppingTime - word1.toppingTime })
-                }
-                else {
-                    arr_.sort((word1, word2) => { return word1.toppingTime - word2.toppingTime })
-                }
-                setSouceWordArr(arr_)
+                arr_.sort((word1, word2) => { return word1.toppingTime - word2.toppingTime })
             }
-
-        }, 0);
+            setSouceWordArr(arr_)
+        }
 
 
 
@@ -252,8 +240,6 @@ export default function ContextProvider(props) {
 
                 const originalWordArr = JSON.parse(wordFile.textSync()).filter(element => element.wordName !== word.wordName)
                 wordFile.write(JSON.stringify(originalWordArr), {})
-
-
                 isSaving.value = false
             }
 
