@@ -94,8 +94,7 @@ import { scheduleOnRN } from 'react-native-worklets';
 
 import { ReText } from 'react-native-redash';
 
-import RateBar from './SettingScreenComp/RateBar';
-import ReadingTimesBar from './SettingScreenComp/ReadingTimesBar';
+
 
 
 
@@ -104,50 +103,14 @@ export default function SettingScreen() {
     const { setSouceWordArr, saveWordToFile, sourceWordArr, refreshState, setRefreshState, wordPos, scrollX, scrollRef0,
         scrollRef, scrollRef2, preTop, isSaving,
 
-        selectedLevelArr, isNewerstOnTop, smallIndex, largeIndex, enableSlice } = useContext(Context)
+        selectedLevelArr, isNewerstOnTop, smallIndex, largeIndex } = useContext(Context)
 
     const file = new File(Paths.document, "allwords.txt")
+    const allWords = JSON.parse(file.textSync())
+    allWords.sort((word1, word2) => { return word2.toppingTime - word1.toppingTime })
 
 
-
-    const navigation = useNavigation()
-    const [allWords, setAllWords] = useState([])
-    useEffect(() => {
-        const listener = navigation.addListener("focus", () => {
-
-            setTimeout(() => {
-                const arr = JSON.parse(file.textSync())
-                arr.sort((word1, word2) => { return word2.toppingTime - word1.toppingTime })
-
-                setAllWords(() => {
-                    return arr
-                })
-
-                translateXDot1.value =
-                    (smallIndex.value === arr.length - 1)
-                        ? smallIndex.value !== 0
-                            ? screenWidth - 120 - 40
-                            : 0
-                        : Math.min(Math.max(0, (Number)(formattedText1.value || "0")), arr.length - 1) / arr.length * (screenWidth - 120 - 40)
-
-
-
-
-                translateXDot2.value =
-                    (largeIndex.value === arr.length - 1)
-                        ? screenWidth - 120 - 40
-                        : Math.min(Math.max(0, (Number)(formattedText2.value || "0")), arr.length - 1) / arr.length * (screenWidth - 120 - 40)
-            }, 100);
-
-
-
-        })
-        return listener
-
-
-
-
-    }, [])
+    //console.log("-----", smallIndex.value, largeIndex.value)
 
 
     const levelArr = useSharedValue(selectedLevelArr.value)
@@ -155,7 +118,7 @@ export default function SettingScreen() {
 
 
     function filterLevel() {
-        // console.log("allWords length in filter level", allWords.length, "------===")
+
 
         const localSmall = (Number)(formattedText1.value) <= (Number)(formattedText2.value) ? (Number)(formattedText1.value) : (Number)(formattedText2.value)
         const localLarge = (Number)(formattedText1.value) >= (Number)(formattedText2.value) ? (Number)(formattedText1.value) : (Number)(formattedText2.value)
@@ -169,7 +132,7 @@ export default function SettingScreen() {
 
         smallIndex.value = localSmall
         largeIndex.value = localLarge
-        enableSlice.value = localEnableSlice
+
 
 
 
@@ -182,11 +145,11 @@ export default function SettingScreen() {
         isSaving.value = true
         const newArr = allWords.filter((word, index) => {
             // console.log(word.level, index, selectedLevelArr.value[word.level])
-            if (localEnableSlice) {
-                if ((index < localSmall) || (index > localLarge)) {
-                    return false
-                }
+
+            if ((index < localSmall) || (index > localLarge)) {
+                return false
             }
+
             //  console.log("sm", smallIndex, "lg", largeIndex)
 
             return levelArr.value[word.level] === true
@@ -205,11 +168,11 @@ export default function SettingScreen() {
         scrollRef.current._scrollViewRef.scrollTo({ y: 0, animated: true })
         scrollRef2.current._scrollViewRef.scrollTo({ x: 0, animated: true })
         preTop.value = headHeight
-
+  
         setTimeout(() => {
             setSouceWordArr(newArr)
             isSaving.value = false
-        }, newArr.length > 1 ? 500 : 500);// need 500 second to make sure scroll animation finish
+        }, newArr.length>1?500:500);// need 500 second to make sure scroll animation finish
 
 
         selectedLevelArr.modify(arr => {
@@ -217,27 +180,12 @@ export default function SettingScreen() {
             return levelArr.value
         })
 
-        setTimeout(() => {
-            const configFile = new File(Paths.document, "config.json")
-            //!configFile.exists && configFile.create({ intermediates: true, overwrite: false })
-            let configObj = {
-                isNewerstOnTop: isNewerstOnTop.value,
-                selectedLevelArr: levelArr.value,
-                smallIndex: localSmall,
-                largeIndex: localLarge,
-                enableSlice: localEnableSlice,
-            }
-
-            configFile.write(JSON.stringify(configObj), {})
-
-
-
-        }, 500);
 
 
 
 
 
+      
     }
 
 
@@ -258,7 +206,7 @@ export default function SettingScreen() {
             backHandler?.remove();
         }
 
-    }, [filterLevel]);
+    }, []);
 
 
 
@@ -282,10 +230,10 @@ export default function SettingScreen() {
 
     //const [checked, setChecked] = useState(isNewerstOnTop.value)
 
-    const [localEnableSlice, setLocalEnableSlice] = useState(enableSlice.value)
+    const [checked, setChecked] = useState(true)
 
 
-    // const [localNewerstTop, setLocalNewerstTop] = useState(isNewerstOnTop.value)
+
 
 
 
@@ -403,22 +351,18 @@ export default function SettingScreen() {
                                 right: 10,
                                 transform: [{ scale: 1.5 }, { translateY: 2 }]
                             }}
-                            value={localEnableSlice}
-                            // onValueChange={(value) => {
-                            //     setChecked(value)
-                            //     isNewerstOnTop.value = value
-
-                            //     setSouceWordArr(arr => {
-
-                            //         return arr.slice(0, arr.length).reverse()
-
-                            //         // return JSON.parse(JSON.stringify([...arr.reverse()]))
-
-                            //     })
-
-                            // }}
+                            value={checked}
                             onValueChange={(value) => {
-                                setLocalEnableSlice(value)
+                                setChecked(value)
+                                isNewerstOnTop.value = value
+
+                                setSouceWordArr(arr => {
+
+                                    return arr.slice(0, arr.length).reverse()
+
+                                    // return JSON.parse(JSON.stringify([...arr.reverse()]))
+
+                                })
 
                             }}
                         />
@@ -428,7 +372,7 @@ export default function SettingScreen() {
 
                     <View style={{
                         width: screenWidth,
-                        height: localEnableSlice ? 80 : 0,
+                        height: checked ? 80 : 0,
                         // backgroundColor: "rgba(112,156,123,0.5)",
                         //  justifyContent: "center",
                         marginTop: 0,
@@ -765,7 +709,7 @@ export default function SettingScreen() {
                 </View> */}
 
 
-                < ReadingTimesBar />
+
             </View >
 
 
@@ -774,88 +718,88 @@ export default function SettingScreen() {
 
     )
 }
- 
-
-// function RateBar({ levelArr }) { //!!! Make sure the Card.js render first, then render this component!!!
-
-//     const { setSouceWordArr, saveWordToFile, sourceWordArr, refreshState, setRefreshState, wordPos, scrollX, scrollRef0, selectedLevelArr, isNewerstOnTop } = useContext(Context)
-
-//     // console.log("",selectedLevelArr.value)
 
 
+function RateBar({ levelArr }) { //!!! Make sure the Card.js render first, then render this component!!!
 
-//     useDerivedValue(() => {
+    const { setSouceWordArr, saveWordToFile, sourceWordArr, refreshState, setRefreshState, wordPos, scrollX, scrollRef0, selectedLevelArr, isNewerstOnTop } = useContext(Context)
 
-//         //   console.log(levelArr.value)
-
-//     }, [levelArr])
+    // console.log("",selectedLevelArr.value)
 
 
 
-//     return (
+    useDerivedValue(() => {
+
+        //   console.log(levelArr.value)
+
+    }, [levelArr])
 
 
 
-//         <View style={useAnimatedStyle(() => {
-
-//             return {
-//                 backgroundColor: "transparent",// isDownloaded.value ? "wheat" : "#e7cca0",
-//                 width: screenWidth, height: headHeight, flexDirection: "row",
-//                 justifyContent: "space-evenly",
-//                 alignItems: "flex-end",
-//                 padding: 0, margin: 0, paddingHorizontal: 0, marginHorizontal: 0,
-//                 paddingBottom: 4,
-
-//             }
-//         })}>
-
-//             {[0, 1, 2, 3, 4, 5].map((levelIndex, index) => {
-
-
-//                 return <GestureDetector key={index} gesture={Gesture.Tap().onStart(e => {
-
-//                     //   console.log("pressed", index)
-//                     levelArr.modify(arr => {
-//                         arr[index] = !arr[index]
-//                         return arr
-//                     })
-//                     // scheduleOnRN(filterLevel)
-//                 })} >
-//                     <View style={
-
-//                         [useAnimatedStyle(() => {
-//                             return {
-//                                 width: 40, height: 40, borderRadius: 999, borderColor: "orange", flexDirection: "row",
-//                                 borderWidth: 1, justifyContent: "center", alignItems: "center",
-
-
-//                                 backgroundColor: levelArr.value[index]
-//                                     ? "orange"
-//                                     : "transparent",
-
-//                                 padding: 0, margin: 0, paddingHorizontal: 0, marginHorizontal: 0
-//                             }
-//                         })]
-//                     }>
-
-//                         <Text style={[
-//                             useAnimatedStyle(() => {
-
-
-//                                 return { color: levelArr.value[index] ? "wheat" : "orange", fontSize: 15, fontWeight: "900" }
-//                             }),
-//                         ]}>{levelIndex}</Text>
-
-//                     </View>
-
-//                 </GestureDetector>
-//             })
-
-//             }
+    return (
 
 
 
-//         </View >
+        <View style={useAnimatedStyle(() => {
 
-//     )
-// }
+            return {
+                backgroundColor: "transparent",// isDownloaded.value ? "wheat" : "#e7cca0",
+                width: screenWidth, height: headHeight, flexDirection: "row",
+                justifyContent: "space-evenly",
+                alignItems: "flex-end",
+                padding: 0, margin: 0, paddingHorizontal: 0, marginHorizontal: 0,
+                paddingBottom: 4,
+
+            }
+        })}>
+
+            {[0, 1, 2, 3, 4, 5].map((levelIndex, index) => {
+
+
+                return <GestureDetector key={index} gesture={Gesture.Tap().onStart(e => {
+
+                    //   console.log("pressed", index)
+                    levelArr.modify(arr => {
+                        arr[index] = !arr[index]
+                        return arr
+                    })
+                    // scheduleOnRN(filterLevel)
+                })} >
+                    <View style={
+
+                        [useAnimatedStyle(() => {
+                            return {
+                                width: 40, height: 40, borderRadius: 999, borderColor: "orange", flexDirection: "row",
+                                borderWidth: 1, justifyContent: "center", alignItems: "center",
+
+
+                                backgroundColor: levelArr.value[index]
+                                    ? "orange"
+                                    : "transparent",
+
+                                padding: 0, margin: 0, paddingHorizontal: 0, marginHorizontal: 0
+                            }
+                        })]
+                    }>
+
+                        <Text style={[
+                            useAnimatedStyle(() => {
+
+
+                                return { color: levelArr.value[index] ? "wheat" : "orange", fontSize: 15, fontWeight: "900" }
+                            }),
+                        ]}>{levelIndex}</Text>
+
+                    </View>
+
+                </GestureDetector>
+            })
+
+            }
+
+
+
+        </View >
+
+    )
+}

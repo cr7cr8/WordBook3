@@ -101,59 +101,57 @@ export default function ContextProvider(props) {
 
     useEffect(() => {
 
-
-        const wordFile = new File(Paths.document, "allwords.txt")
-        !wordFile.exists && wordFile.create({ intermediates: true, overwrite: false })
-
-        if (wordFile.size === 0) {
-
-            const now = Date.now()
-            let arr = defaultwordsArr.map((word, index) => {
-                const random = Math.floor(Math.random() * 10000000)
-                return {
-                    ...word,
-                    createTime: now - random,
-                    toppingTime: now - random + 5000,
-                }
-            })
-
-            arr.sort((word1, word2) => { return word2.toppingTime - word1.toppingTime })
-
-            isNewerstOnTop.value = true
-            selectedLevelArr.value = [true, true, true, true, true, true]
-            smallIndex.value = 0
-            largeIndex.value = Math.max(0, arr.length - 1)
-            enableSlice.value = true
-
-            setTimeout(() => {
-                let configObj = {
-                    isNewerstOnTop: isNewerstOnTop.value,
-                    selectedLevelArr: selectedLevelArr.value,
-                    smallIndex: smallIndex.value,
-                    largeIndex: largeIndex.value,
-                    enableSlice: enableSlice.value,
-                }
-                const configFile = new File(Paths.document, "config.json")
-                !configFile.exists && configFile.create({ intermediates: true, overwrite: false })
-                configFile.write(JSON.stringify(configObj), {})
-
-            }, 100);
+        // const configFile = new File(Paths.document, "config.json")
+        // !configFile.exists && configFile.create({ intermediates: true, overwrite: false })
+        // let configObj = {}
 
 
-            setSouceWordArr(arr)
-            setTimeout(() => {
-                saveWordToFile()
-            }, 100);
+        // if (configFile.size === 0) {
+        //     configObj = {
+        //         smallIndex: 0,
+        //         largeIndex: 0,
+        //         selectedLevelArr: [true, true, true, true, true, true],
+        //         shouldSlice: true,
+        //         isNewerstOnTop: true,
+        //         enableSlice: true,
+        //     }
+        //     configFile.write(JSON.stringify(configObj))
+        // }
+        // else {
 
-        }
-        else {
+        //     configObj = JSON.parse(configFile.textSync())
+        //     console.log(configObj, "---")
 
-            let arr = JSON.parse(wordFile.textSync())
+        //     isNewerstOnTop.value = configObj.isNewerstOnTop
+        //     selectedLevelArr.value = configObj.selectedLevelArr
+        //     smallIndex.value = configObj.smallIndex
+        //     largeIndex.value = configObj.largeIndex
+        //     enableSlice.value = configObj.enableSlice
+        // }
+
+        setTimeout(() => {
+            const wordFile = new File(Paths.document, "allwords.txt")
+            !wordFile.exists && wordFile.create({ intermediates: true, overwrite: false })
+
+            if (wordFile.size === 0) {
+
+                const now = Date.now()
+                let arr = defaultwordsArr.map((word, index) => {
+                    const random = Math.floor(Math.random() * 10000000)
+                    return {
+                        ...word,
+                        createTime: now - random,
+                        toppingTime: now - random + 5000,
+                    }
+                })
+
+                arr.sort((word1, word2) => { return word2.toppingTime - word1.toppingTime })
 
 
-            const configFile = new File(Paths.document, "config.json")
-            if (!configFile.exists) {
-                configFile.create({ intermediates: true, overwrite: false })
+
+
+
+
                 isNewerstOnTop.value = true
                 selectedLevelArr.value = [true, true, true, true, true, true]
                 smallIndex.value = 0
@@ -168,45 +166,93 @@ export default function ContextProvider(props) {
                         largeIndex: largeIndex.value,
                         enableSlice: enableSlice.value,
                     }
+                    const configFile = new File(Paths.document, "config.json")
+                    !configFile.exists && configFile.create({ intermediates: true, overwrite: false })
                     configFile.write(JSON.stringify(configObj), {})
-                }, 0);
+
+                }, 100);
+
+
+
+
+
+                setSouceWordArr(arr)
+                setTimeout(() => {
+                    saveWordToFile()
+                }, 100);
+
             }
             else {
-                const configObj = JSON.parse(configFile.textSync())
-                isNewerstOnTop.value = configObj.isNewerstOnTop
-                selectedLevelArr.value = configObj.selectedLevelArr
-                smallIndex.value = configObj.smallIndex
-                largeIndex.value = configObj.largeIndex
-                enableSlice.value = configObj.enableSlice
+
+                let arr_ = JSON.parse(wordFile.textSync())
 
 
-            }
+                const configFile = new File(Paths.document, "config.json")
+                if (!configFile.exists) {
+                    configFile.create({ intermediates: true, overwrite: false })
+                    isNewerstOnTop.value = true
+                    selectedLevelArr.value = [true, true, true, true, true, true]
+                    smallIndex.value = 0
+                    largeIndex.value = Math.max(0, arr_.length - 1)
+                    enableSlice.value = true
 
-            setTimeout(() => {
-                arr.sort((word1, word2) => { return word2.toppingTime - word1.toppingTime })
+                    setTimeout(() => {
+                        let configObj = {
+                            isNewerstOnTop: isNewerstOnTop.value,
+                            selectedLevelArr: selectedLevelArr.value,
+                            smallIndex: smallIndex.value,
+                            largeIndex: largeIndex.value,
+                            enableSlice: enableSlice.value,
+                        }
+                        configFile.write(JSON.stringify(configObj), {})
+                    }, 0);
+                }
+                else {
+                    const configObj = JSON.parse(configFile.textSync())
+                    isNewerstOnTop.value = configObj.isNewerstOnTop
+                    selectedLevelArr.value = configObj.selectedLevelArr
+                    smallIndex.value = configObj.smallIndex
+                    largeIndex.value = configObj.largeIndex
+                    enableSlice.value = configObj.enableSlice
 
-                arr = arr.filter((word, index) => {
+
+                }
+
+
+                arr_.sort((word1, word2) => { return word2.toppingTime - word1.toppingTime })
+
+                arr_ = arr_.filter((word, index) => {
+                    // console.log(word.level, index, selectedLevelArr.value[word.level])
 
                     if (enableSlice.value) {
                         if ((index < smallIndex.value) || (index > largeIndex.value)) {
                             return false
                         }
                     }
+                    //  console.log("sm", smallIndex, "lg", largeIndex)
+
                     return selectedLevelArr.value[word.level] === true
 
 
                 })
 
+
+
                 if (isNewerstOnTop.value) {
-                    arr.sort((word1, word2) => { return word2.toppingTime - word1.toppingTime })
+                    arr_.sort((word1, word2) => { return word2.toppingTime - word1.toppingTime })
                 }
                 else {
-                    arr.sort((word1, word2) => { return word1.toppingTime - word2.toppingTime })
+                    arr_.sort((word1, word2) => { return word1.toppingTime - word2.toppingTime })
                 }
-                setSouceWordArr(arr)
-            }, 0);
+                setSouceWordArr(arr_)
+            }
 
-        }
+        }, 0);
+
+
+
+
+
 
     }, [])
 
@@ -450,10 +496,15 @@ export default function ContextProvider(props) {
     const autoPlay = useDebouncedCallback(function () {
 
         const arr = []
-     
+        ///////////////////////////////
+        // arr.push(function () {
+        //     sentencePlayingIndex.value = 0
+        //     if (!isListPlaying.value) { return Promise.resolve() }
 
+        //     return speak(sourceWordArr[wordPos.value].wordName, sourceWordArr[wordPos.value].wordName)
+        // })
+        //////////////////////////////
 
-      /// reading word///  
         for (let i = 0; i < sourceWordArr[wordPos.value].firstTimeAmount; i++) {
             arr.push(function () {
                 if (!isListPlaying.value) { return Promise.resolve() }
@@ -467,51 +518,49 @@ export default function ContextProvider(props) {
                 return speak(sourceWordArr[wordPos.value].meaningSound, sourceWordArr[wordPos.value].meaningSound)
             })
         }
-        for (let i = 0; i < sourceWordArr[wordPos.value].secondTimeAmount; i++) {
-            arr.push(function () {
-                if (!isListPlaying.value) { return Promise.resolve() }
-                return speak(sourceWordArr[wordPos.value].wordName, sourceWordArr[wordPos.value].wordName)
-            })
-        }
-        for (let i = 0; i < sourceWordArr[wordPos.value].secondTimeMeaningAmount; i++) {
-            arr.push(function () {
-                if (!isListPlaying.value) { return Promise.resolve() }
-                return speak(sourceWordArr[wordPos.value].meaningSound, sourceWordArr[wordPos.value].meaningSound)
-            })
-        }
+        // for (let i = 0; i < sourceWordArr[wordPos.value].secondTimeAmount; i++) {
+        //     arr.push(function () {
+        //         if (!isListPlaying.value) { return Promise.resolve() }
+        //         return speak(sourceWordArr[wordPos.value].wordName, sourceWordArr[wordPos.value].wordName)
+        //     })
+        // }
+        // for (let i = 0; i < sourceWordArr[wordPos.value].secondTimeMeaningAmount; i++) {
+        //     arr.push(function () {
+        //         if (!isListPlaying.value) { return Promise.resolve() }
+        //         return speak(sourceWordArr[wordPos.value].meaningSound, sourceWordArr[wordPos.value].meaningSound)
+        //     })
+        // }
 
-
-     //// reading sentence ////  
         for (let i = 0; i < sourceWordArr[wordPos.value].exampleEnglishArr.length; i++) {
 
-            for (let j = 0; j < sourceWordArr[wordPos.value].exampleEnglishArr[i].firstTimeAmount; j++) {
-                arr.push(function () {
-                    sentencePlayingIndex.value = i
-                    if (!isListPlaying.value) { return Promise.resolve() }
-                    return speak(sourceWordArr[wordPos.value].wordName, sourceWordArr[wordPos.value].exampleEnglishArr[i].sentence)
-                })
-            }
+            // for (let j = 0; j < sourceWordArr[wordPos.value].exampleEnglishArr[i].firstTimeAmount; j++) {
+            arr.push(function () {
+                sentencePlayingIndex.value = i
+                if (!isListPlaying.value) { return Promise.resolve() }
+                return speak(sourceWordArr[wordPos.value].wordName, sourceWordArr[wordPos.value].exampleEnglishArr[i].sentence)
+            })
+            // }
 
-            for (let j = 0; j < sourceWordArr[wordPos.value].exampleChineseArr[i].firstTimeAmount; j++) {
-                arr.push(function () {
-                    if (!isListPlaying.value) { return Promise.resolve() }
-                    return speak(sourceWordArr[wordPos.value].exampleChineseArr[i].sentence, sourceWordArr[wordPos.value].exampleChineseArr[i].sentence)
-                })
-            }
+            // for (let j = 0; j < sourceWordArr[wordPos.value].exampleChineseArr[i].firstTimeAmount; j++) {
+            arr.push(function () {
+                if (!isListPlaying.value) { return Promise.resolve() }
+                return speak(sourceWordArr[wordPos.value].exampleChineseArr[i].sentence, sourceWordArr[wordPos.value].exampleChineseArr[i].sentence)
+            })
+            // }
 
-            for (let j = 0; j < sourceWordArr[wordPos.value].exampleEnglishArr[i].secondTimeAmount; j++) {
-                arr.push(function () {
-                    if (!isListPlaying.value) { return Promise.resolve() }
-                    return speak(sourceWordArr[wordPos.value].wordName, sourceWordArr[wordPos.value].exampleEnglishArr[i].sentence)
-                })
-            }
+            // for (let j = 0; j < sourceWordArr[wordPos.value].exampleEnglishArr[i].secondTimeAmount; j++) {
+            //     arr.push(function () {
+            //         if (!isListPlaying.value) { return Promise.resolve() }
+            //         return speak(sourceWordArr[wordPos.value].wordName, sourceWordArr[wordPos.value].exampleEnglishArr[i].sentence)
+            //     })
+            // }
 
-            for (let j = 0; j < sourceWordArr[wordPos.value].exampleChineseArr[i].secondTimeAmount; j++) {
-                arr.push(function () {
-                    if (!isListPlaying.value) { return Promise.resolve() }
-                    return speak(sourceWordArr[wordPos.value].exampleChineseArr[i].sentence, sourceWordArr[wordPos.value].exampleChineseArr[i].sentence)
-                })
-            }
+            // for (let j = 0; j < sourceWordArr[wordPos.value].exampleChineseArr[i].secondTimeAmount; j++) {
+            //     arr.push(function () {
+            //         if (!isListPlaying.value) { return Promise.resolve() }
+            //         return speak(sourceWordArr[wordPos.value].exampleChineseArr[i].sentence, sourceWordArr[wordPos.value].exampleChineseArr[i].sentence)
+            //     })
+            // }
         }
 
 
