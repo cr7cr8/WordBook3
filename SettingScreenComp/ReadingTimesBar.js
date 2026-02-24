@@ -69,52 +69,200 @@ import { useDebounce, useDebouncedCallback, useThrottledCallback } from 'use-deb
 import CryptoJS from 'crypto-js/sha256';
 import { ReText } from 'react-native-redash';
 
-export default function ReadingTimesBar() {
+export default function ReadingTimesBar({ isForWord = true, ...props }) {
 
     const { sourceWordArr, setSouceWordArr, scrollRef0, scrollRef, scrollRef2, frameTransY, wordPos, isListPlaying, preLeft, preTop, scrollY, scrollX,
         isPanning, speak, autoPlay, stopSpeak, isScrollingY, isScrollingX, isCardMoving, isManualDrag, shouldHideWordBlock, isNewerstOnTop, setRefreshState,
-        selectedLevelArr, smallIndex, largeIndex, enableSlice
+        selectedLevelArr, smallIndex, largeIndex, enableSlice, wordRepeatingArr, sentenceRepeatingArr, sameAmountWord, sameAmountSentence
     } = useContext(Context)
 
-    const localWordReadingArr = useSharedValue([2, 1, 2, 1])
+  //  console.log("sentenceRepeaingArr", sentenceRepeatingArr.value, "isForWrd", isForWord)
 
     const wordReading0 = useDerivedValue(() => {
-        return localWordReadingArr.value[0] + ""
-    }, [localWordReadingArr])
+        return isForWord ? wordRepeatingArr.value[0] + "" : sentenceRepeatingArr.value[0] + ""
+    }, [wordRepeatingArr])
 
     const wordReading1 = useDerivedValue(() => {
-        return localWordReadingArr.value[1] + ""
-    }, [localWordReadingArr])
+        return isForWord ? wordRepeatingArr.value[1] + "" : sentenceRepeatingArr.value[1] + ""
+    }, [wordRepeatingArr])
 
     const wordReading2 = useDerivedValue(() => {
-        return localWordReadingArr.value[2] + ""
-    }, [localWordReadingArr])
+        return isForWord ? wordRepeatingArr.value[2] + "" : sentenceRepeatingArr.value[2] + ""
+    }, [wordRepeatingArr])
 
     const wordReading3 = useDerivedValue(() => {
-        return localWordReadingArr.value[3] + ""
-    }, [localWordReadingArr])
+        return isForWord ? wordRepeatingArr.value[3] + "" : sentenceRepeatingArr.value[3] + ""
+    }, [wordRepeatingArr])
 
 
+    const wordReadingArr = [wordReading0, wordReading1, wordReading2, wordReading3]
 
+
+    const [sameAmount, setSameAmount] = useState(isForWord ? sameAmountWord.value : sameAmountSentence.value)
 
 
     return (
-        <View style={useAnimatedStyle(() => {
 
-
-            return {
-                width: screenWidth,
-                height: 80,
-                backgroundColor: "#e7cca0",
-                flexDirection: "row",
-                justifyContent: "space-around",
-                alignItems: "center",
-            }
-
-
-        })}>
+        <View style={{ height: 60 }}>
 
             <View style={useAnimatedStyle(() => {
+
+
+                return {
+                    width: screenWidth,
+                    height: 60,
+                    backgroundColor: "#e7cca0",
+                    flexDirection: "row",
+                    justifyContent: "space-around",
+                    alignItems: "center",
+                }
+
+
+            })}>
+
+                {[0, 1, 2, 3, 4].map((item, index) => {
+                    const text = wordReadingArr[index]
+
+                  //  console.log("isForWord", isForWord, text)
+
+
+                    return (
+
+                        <View key={index} style={useAnimatedStyle(() => {
+
+                            return {
+                                width: 60,
+                                height: 60,
+                                backgroundColor: "transparent",
+                                justifyContent: "center",
+                                alignItems: "center",
+                            }
+                        })}>
+                            {index !== 4
+                                ? <ReText editable={false} text={text} fontSize={25} style={{ fontWeight: 400, }} color={sameAmount ? "#a75d09" : "gray"} />
+                                : <></>
+                            }
+                        </View>
+
+                    )
+                })}
+            </View>
+            <View style={useAnimatedStyle(() => {
+
+
+                return {
+                    width: screenWidth,
+                    height: 60,
+                    backgroundColor: "transparent",
+                    flexDirection: "row",
+                    justifyContent: "space-around",
+                    alignItems: "center",
+                    transform: [{ translateY: -60 }]
+                }
+
+
+            })}>
+
+                {[0, 1, 2, 3, 4].map((item, index) => {
+
+
+
+
+                    return (
+
+                        <View key={index} style={useAnimatedStyle(() => {
+
+                            return {
+                                width: 60,
+                                height: 60,
+                                backgroundColor: "transparent",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                transform: [{ translateY: -0 }]
+                            }
+                        })}>
+                            {index <= 3
+                                ? <GestureDetector gesture={Gesture.Tap().onStart((e) => {
+
+
+
+                                    if (isForWord) {
+                                        wordRepeatingArr.modify(arr => {
+                                            arr[index] = (arr[index] + 1) % 4
+
+                                            return arr
+                                        })
+
+                                    }
+                                    else {
+                                        sentenceRepeatingArr.modify(arr => {
+                                            arr[index] = (arr[index] + 1) % 4
+
+                                            return arr
+                                        })
+                                    }
+
+                                })}>
+                                    <View style={useAnimatedStyle(() => {
+                                        return {
+                                            height: 60, width: 60,
+                                            backgroundColor: "transparent"
+                                        }
+                                    })}></View>
+                                </GestureDetector>
+                                : <Switch
+                                    //thumbColor={"green"}
+                                    color='orange'
+
+                                    style={{
+                                        height: 40, width: 40,// backgroundColor: "rgba(122,114,225,0.3)",
+                                        backgroundColor: "rgba(192,14,225,0)",
+                                        right: 10,
+                                        transform: [{ scale: 1.5 }, { translateY: 0 }, { translateX: 4 }]
+                                    }}
+                                    value={sameAmount}
+                                    onValueChange={value => {
+                              
+                                        isForWord ? (function () { sameAmountWord.value = value })() : (function () { sameAmountSentence.value = value })()
+                              
+
+                                        setSameAmount(value)
+                                    }}
+
+
+
+                                />
+                            }
+                        </View>
+
+                    )
+                })}
+            </View>
+
+        </View>
+    )
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{/* <View style={useAnimatedStyle(() => {
 
 
                 return {
@@ -133,13 +281,13 @@ export default function ReadingTimesBar() {
                 <ReText editable={false} text={wordReading0} fontSize={25} style={{ fontWeight: 400, }} color="#a75d09" />
 
                 <GestureDetector gesture={Gesture.Tap().onStart((e) => {
-                    localWordReadingArr.modify(arr=>{
+                    localWordReadingArr.modify(arr => {
 
-                      return  arr.map((value,index)=>{
-                            if(index==0){
-                                return  (value+1)%4
+                        return arr.map((value, index) => {
+                            if (index == 0) {
+                                return (value + 1) % 4
                             }
-                            else{
+                            else {
                                 return value
                             }
                         })
@@ -152,7 +300,7 @@ export default function ReadingTimesBar() {
             </View>
 
 
-               <View style={useAnimatedStyle(() => {
+            <View style={useAnimatedStyle(() => {
 
 
                 return {
@@ -171,7 +319,7 @@ export default function ReadingTimesBar() {
                 }} />
             </View>
 
-               <View style={useAnimatedStyle(() => {
+            <View style={useAnimatedStyle(() => {
 
 
                 return {
@@ -188,7 +336,7 @@ export default function ReadingTimesBar() {
                 <ReText editable={false} text={wordReading2} fontSize={20} style={{ fontWeight: 400 }} color="#a75d09" />
             </View>
 
-               <View style={useAnimatedStyle(() => {
+            <View style={useAnimatedStyle(() => {
 
 
                 return {
@@ -205,7 +353,7 @@ export default function ReadingTimesBar() {
                 <ReText editable={false} text={wordReading3} fontSize={20} style={{ fontWeight: 400 }} color="#a75d09" />
             </View>
 
-     <View style={useAnimatedStyle(() => {
+            <View style={useAnimatedStyle(() => {
 
 
                 return {
@@ -219,23 +367,16 @@ export default function ReadingTimesBar() {
 
 
             })}>
-            <Switch
-                //thumbColor={"green"}
-                color='orange'
+                <Switch
+                    //thumbColor={"green"}
+                    color='orange'
 
-                style={{
-                    height: 40, width: 80,// backgroundColor: "rgba(122,114,225,0.3)",
-                    backgroundColor: "rgba(122,114,225,0)",
-                    right: 10,
-                    transform: [{ scale: 1.5 }, { translateY: 0 },{translateX:-8}]
-                }}
-                value={true}
-            />
-            </View>
-        </View>
-
-
-    )
-
-}
-
+                    style={{
+                        height: 40, width: 80,// backgroundColor: "rgba(122,114,225,0.3)",
+                        backgroundColor: "rgba(122,114,225,0)",
+                        right: 10,
+                        transform: [{ scale: 1.5 }, { translateY: 0 }, { translateX: -8 }]
+                    }}
+                    value={true}
+                />
+            </View> */}

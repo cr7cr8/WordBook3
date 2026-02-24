@@ -3,7 +3,7 @@ import { Audio } from 'expo-av';
 
 import { activateKeepAwakeAsync, deactivateKeepAwake, useKeepAwake } from 'expo-keep-awake';
 
-import { StyleSheet, Button, Dimensions, AppState, Vibration } from 'react-native';
+import { StyleSheet, Button, Dimensions, AppState, Vibration, Alert } from 'react-native';
 const screenWidth = Dimensions.get('screen').width
 const screenHeight = Dimensions.get('screen').height
 //import wordUsObj from "./wordUsObj"
@@ -98,6 +98,11 @@ export default function ContextProvider(props) {
     const smallIndex = useSharedValue(0)
     const largeIndex = useSharedValue(Math.max(0, sourceWordArr.length - 1))
 
+    const wordRepeatingArr = useSharedValue([2, 1, 2, 1])
+    const sentenceRepeatingArr = useSharedValue([3, 1, 3, 1])
+
+    const sameAmountWord = useSharedValue(false)
+    const sameAmountSentence = useSharedValue(false)
 
     useEffect(() => {
 
@@ -125,6 +130,13 @@ export default function ContextProvider(props) {
             largeIndex.value = Math.max(0, arr.length - 1)
             enableSlice.value = true
 
+            wordRepeatingArr.value = [2, 1, 2, 1]
+            sentenceRepeatingArr.value = [3, 1, 3, 1]
+
+            sameAmountWord.value = false
+            sameAmountSentence.value = false
+
+
             setTimeout(() => {
                 let configObj = {
                     isNewerstOnTop: isNewerstOnTop.value,
@@ -132,6 +144,10 @@ export default function ContextProvider(props) {
                     smallIndex: smallIndex.value,
                     largeIndex: largeIndex.value,
                     enableSlice: enableSlice.value,
+                    wordRepeatingArr: wordRepeatingArr.value,
+                    sentenceRepeatingArr: sentenceRepeatingArr.value,
+                    sameAmountWord: sameAmountWord.value,
+                    sameAmountSentence: sameAmountSentence.value
                 }
                 const configFile = new File(Paths.document, "config.json")
                 !configFile.exists && configFile.create({ intermediates: true, overwrite: false })
@@ -160,6 +176,10 @@ export default function ContextProvider(props) {
                 largeIndex.value = Math.max(0, arr.length - 1)
                 enableSlice.value = true
 
+                sameAmountWord.value = false
+                sameAmountSentence.value = false
+
+
                 setTimeout(() => {
                     let configObj = {
                         isNewerstOnTop: isNewerstOnTop.value,
@@ -167,6 +187,10 @@ export default function ContextProvider(props) {
                         smallIndex: smallIndex.value,
                         largeIndex: largeIndex.value,
                         enableSlice: enableSlice.value,
+                        wordRepeatingArr: wordRepeatingArr.value,
+                        sentenceRepeatingArr: sentenceRepeatingArr.value,
+                        sameAmountWord: sameAmountWord.value,
+                        sameAmountSentence: sameAmountSentence.value
                     }
                     configFile.write(JSON.stringify(configObj), {})
                 }, 0);
@@ -178,7 +202,10 @@ export default function ContextProvider(props) {
                 smallIndex.value = configObj.smallIndex
                 largeIndex.value = configObj.largeIndex
                 enableSlice.value = configObj.enableSlice
-
+                wordRepeatingArr.value = configObj.wordRepeatingArr
+                sentenceRepeatingArr.value = configObj.sentenceRepeatingArr
+                sameAmountWord.value = configObj.sameAmountWord
+                sameAmountSentence.value = configObj.sameAmountSentence
 
             }
 
@@ -235,9 +262,11 @@ export default function ContextProvider(props) {
 
 
     const downloadWord = useDebouncedCallback(
+
         function (word1, word2, fn) {
             Vibration.vibrate(50)
-
+            // Alert.alert("Not supported in free version")
+            // return
             const hashName1 = CryptoJS(word1).toString();
             const hashName2 = CryptoJS(word2).toString();
             const hashName = hashName1 + hashName2;
@@ -450,70 +479,143 @@ export default function ContextProvider(props) {
     const autoPlay = useDebouncedCallback(function () {
 
         const arr = []
-     
+        console.log(wordRepeatingArr.value, sentenceRepeatingArr.value)
 
-
-      /// reading word///  
-        for (let i = 0; i < sourceWordArr[wordPos.value].firstTimeAmount; i++) {
-            arr.push(function () {
-                if (!isListPlaying.value) { return Promise.resolve() }
-                return speak(sourceWordArr[wordPos.value].wordName, sourceWordArr[wordPos.value].wordName)
-            })
-        }
-
-        for (let i = 0; i < sourceWordArr[wordPos.value].firstTimeMeaningAmount; i++) {
-            arr.push(function () {
-                if (!isListPlaying.value) { return Promise.resolve() }
-                return speak(sourceWordArr[wordPos.value].meaningSound, sourceWordArr[wordPos.value].meaningSound)
-            })
-        }
-        for (let i = 0; i < sourceWordArr[wordPos.value].secondTimeAmount; i++) {
-            arr.push(function () {
-                if (!isListPlaying.value) { return Promise.resolve() }
-                return speak(sourceWordArr[wordPos.value].wordName, sourceWordArr[wordPos.value].wordName)
-            })
-        }
-        for (let i = 0; i < sourceWordArr[wordPos.value].secondTimeMeaningAmount; i++) {
-            arr.push(function () {
-                if (!isListPlaying.value) { return Promise.resolve() }
-                return speak(sourceWordArr[wordPos.value].meaningSound, sourceWordArr[wordPos.value].meaningSound)
-            })
-        }
-
-
-     //// reading sentence ////  
-        for (let i = 0; i < sourceWordArr[wordPos.value].exampleEnglishArr.length; i++) {
-
-            for (let j = 0; j < sourceWordArr[wordPos.value].exampleEnglishArr[i].firstTimeAmount; j++) {
+        /// reading word///  
+        if (sameAmountWord.value) {
+            for (let i = 0; i < wordRepeatingArr.value[0]; i++) {
                 arr.push(function () {
-                    sentencePlayingIndex.value = i
                     if (!isListPlaying.value) { return Promise.resolve() }
-                    return speak(sourceWordArr[wordPos.value].wordName, sourceWordArr[wordPos.value].exampleEnglishArr[i].sentence)
+                    return speak(sourceWordArr[wordPos.value].wordName, sourceWordArr[wordPos.value].wordName)
+                })
+            }
+            for (let i = 0; i < wordRepeatingArr.value[1]; i++) {
+                arr.push(function () {
+                    if (!isListPlaying.value) { return Promise.resolve() }
+                    return speak(sourceWordArr[wordPos.value].meaningSound, sourceWordArr[wordPos.value].meaningSound)
                 })
             }
 
-            for (let j = 0; j < sourceWordArr[wordPos.value].exampleChineseArr[i].firstTimeAmount; j++) {
+            for (let i = 0; i < wordRepeatingArr.value[2]; i++) {
                 arr.push(function () {
                     if (!isListPlaying.value) { return Promise.resolve() }
-                    return speak(sourceWordArr[wordPos.value].exampleChineseArr[i].sentence, sourceWordArr[wordPos.value].exampleChineseArr[i].sentence)
+                    return speak(sourceWordArr[wordPos.value].wordName, sourceWordArr[wordPos.value].wordName)
                 })
             }
-
-            for (let j = 0; j < sourceWordArr[wordPos.value].exampleEnglishArr[i].secondTimeAmount; j++) {
+            for (let i = 0; i < wordRepeatingArr.value[3]; i++) {
                 arr.push(function () {
                     if (!isListPlaying.value) { return Promise.resolve() }
-                    return speak(sourceWordArr[wordPos.value].wordName, sourceWordArr[wordPos.value].exampleEnglishArr[i].sentence)
-                })
-            }
-
-            for (let j = 0; j < sourceWordArr[wordPos.value].exampleChineseArr[i].secondTimeAmount; j++) {
-                arr.push(function () {
-                    if (!isListPlaying.value) { return Promise.resolve() }
-                    return speak(sourceWordArr[wordPos.value].exampleChineseArr[i].sentence, sourceWordArr[wordPos.value].exampleChineseArr[i].sentence)
+                    return speak(sourceWordArr[wordPos.value].meaningSound, sourceWordArr[wordPos.value].meaningSound)
                 })
             }
         }
 
+
+        /// reading word///  
+        if (!sameAmountWord.value) {
+            for (let i = 0; i < sourceWordArr[wordPos.value].firstTimeAmount; i++) {
+                arr.push(function () {
+                    if (!isListPlaying.value) { return Promise.resolve() }
+                    return speak(sourceWordArr[wordPos.value].wordName, sourceWordArr[wordPos.value].wordName)
+                })
+            }
+
+            for (let i = 0; i < sourceWordArr[wordPos.value].firstTimeMeaningAmount; i++) {
+                arr.push(function () {
+                    if (!isListPlaying.value) { return Promise.resolve() }
+                    return speak(sourceWordArr[wordPos.value].meaningSound, sourceWordArr[wordPos.value].meaningSound)
+                })
+            }
+            for (let i = 0; i < sourceWordArr[wordPos.value].secondTimeAmount; i++) {
+                arr.push(function () {
+                    if (!isListPlaying.value) { return Promise.resolve() }
+                    return speak(sourceWordArr[wordPos.value].wordName, sourceWordArr[wordPos.value].wordName)
+                })
+            }
+            for (let i = 0; i < sourceWordArr[wordPos.value].secondTimeMeaningAmount; i++) {
+                arr.push(function () {
+                    if (!isListPlaying.value) { return Promise.resolve() }
+                    return speak(sourceWordArr[wordPos.value].meaningSound, sourceWordArr[wordPos.value].meaningSound)
+                })
+            }
+        }
+
+        //// reading sentence ////  
+        if (sameAmountSentence.value) {
+            for (let i = 0; i < sourceWordArr[wordPos.value].exampleEnglishArr.length; i++) {
+
+                for (let j = 0; j < sentenceRepeatingArr.value[0]; j++) {
+                    arr.push(function () {
+                        sentencePlayingIndex.value = i
+                        if (!isListPlaying.value) { return Promise.resolve() }
+                        return speak(sourceWordArr[wordPos.value].wordName, sourceWordArr[wordPos.value].exampleEnglishArr[i].sentence)
+                    })
+                }
+
+                for (let j = 0; j < sentenceRepeatingArr.value[1]; j++) {
+                    arr.push(function () {
+                        if (!isListPlaying.value) { return Promise.resolve() }
+                        return speak(sourceWordArr[wordPos.value].exampleChineseArr[i].sentence, sourceWordArr[wordPos.value].exampleChineseArr[i].sentence)
+                    })
+                }
+
+                for (let j = 0; j < sentenceRepeatingArr.value[2]; j++) {
+                    arr.push(function () {
+                        sentencePlayingIndex.value = i
+                        if (!isListPlaying.value) { return Promise.resolve() }
+                        return speak(sourceWordArr[wordPos.value].wordName, sourceWordArr[wordPos.value].exampleEnglishArr[i].sentence)
+                    })
+                }
+
+                for (let j = 0; j < sentenceRepeatingArr.value[3]; j++) {
+                    arr.push(function () {
+                        if (!isListPlaying.value) { return Promise.resolve() }
+                        return speak(sourceWordArr[wordPos.value].exampleChineseArr[i].sentence, sourceWordArr[wordPos.value].exampleChineseArr[i].sentence)
+                    })
+                }
+            }
+        }
+
+
+
+
+
+
+        //// reading sentence ////  
+        if (!sameAmountSentence.value) {
+            for (let i = 0; i < sourceWordArr[wordPos.value].exampleEnglishArr.length; i++) {
+
+                for (let j = 0; j < sourceWordArr[wordPos.value].exampleEnglishArr[i].firstTimeAmount; j++) {
+                    arr.push(function () {
+                        sentencePlayingIndex.value = i
+                        if (!isListPlaying.value) { return Promise.resolve() }
+                        return speak(sourceWordArr[wordPos.value].wordName, sourceWordArr[wordPos.value].exampleEnglishArr[i].sentence)
+                    })
+                }
+
+                for (let j = 0; j < sourceWordArr[wordPos.value].exampleChineseArr[i].firstTimeAmount; j++) {
+                    arr.push(function () {
+                        if (!isListPlaying.value) { return Promise.resolve() }
+                        return speak(sourceWordArr[wordPos.value].exampleChineseArr[i].sentence, sourceWordArr[wordPos.value].exampleChineseArr[i].sentence)
+                    })
+                }
+
+                for (let j = 0; j < sourceWordArr[wordPos.value].exampleEnglishArr[i].secondTimeAmount; j++) {
+                    arr.push(function () {
+                        sentencePlayingIndex.value = i
+                        if (!isListPlaying.value) { return Promise.resolve() }
+                        return speak(sourceWordArr[wordPos.value].wordName, sourceWordArr[wordPos.value].exampleEnglishArr[i].sentence)
+                    })
+                }
+
+                for (let j = 0; j < sourceWordArr[wordPos.value].exampleChineseArr[i].secondTimeAmount; j++) {
+                    arr.push(function () {
+                        if (!isListPlaying.value) { return Promise.resolve() }
+                        return speak(sourceWordArr[wordPos.value].exampleChineseArr[i].sentence, sourceWordArr[wordPos.value].exampleChineseArr[i].sentence)
+                    })
+                }
+            }
+        }
 
 
 
@@ -663,7 +765,7 @@ export default function ContextProvider(props) {
             stopSpeak, checkPlaying, speak,
             sentencePlayingIndex, autoPlay,
             newWordText, setNewWordText,
-            selectedLevelArr, smallIndex, largeIndex, enableSlice,
+            selectedLevelArr, smallIndex, largeIndex, enableSlice, wordRepeatingArr, sentenceRepeatingArr, sameAmountWord, sameAmountSentence,
             isSaving
         }}>
 

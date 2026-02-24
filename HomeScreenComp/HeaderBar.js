@@ -302,7 +302,11 @@ export function HeaderBar() {
                         <GestureDetector gesture={Gesture.Tap().onEnd(() => {
 
                             //scheduleOnRN(loadTextFile)
-                            
+                            if (isListPlaying.value) {
+                                isListPlaying.value = false
+                                scheduleOnRN(stopSpeak)
+                            }
+
                             scheduleOnRN(goToSetting)
 
                             //scheduleOnRN(exportTextFile)

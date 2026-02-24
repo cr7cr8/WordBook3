@@ -104,7 +104,7 @@ export default function SettingScreen() {
     const { setSouceWordArr, saveWordToFile, sourceWordArr, refreshState, setRefreshState, wordPos, scrollX, scrollRef0,
         scrollRef, scrollRef2, preTop, isSaving,
 
-        selectedLevelArr, isNewerstOnTop, smallIndex, largeIndex, enableSlice } = useContext(Context)
+        selectedLevelArr, isNewerstOnTop, smallIndex, largeIndex, enableSlice, wordRepeatingArr, sentenceRepeatingArr, sameAmountWord, sameAmountSentence } = useContext(Context)
 
     const file = new File(Paths.document, "allwords.txt")
 
@@ -226,6 +226,10 @@ export default function SettingScreen() {
                 smallIndex: localSmall,
                 largeIndex: localLarge,
                 enableSlice: localEnableSlice,
+                wordRepeatingArr: wordRepeatingArr.value,
+                sentenceRepeatingArr: sentenceRepeatingArr.value,
+                sameAmountWord: sameAmountWord.value,
+                sameAmountSentence: sameAmountSentence.value
             }
 
             configFile.write(JSON.stringify(configObj), {})
@@ -765,7 +769,8 @@ export default function SettingScreen() {
                 </View> */}
 
 
-                < ReadingTimesBar />
+                < ReadingTimesBar isForWord={true} />
+                < ReadingTimesBar isForWord={false} />
             </View >
 
 
@@ -774,7 +779,7 @@ export default function SettingScreen() {
 
     )
 }
- 
+
 
 // function RateBar({ levelArr }) { //!!! Make sure the Card.js render first, then render this component!!!
 
