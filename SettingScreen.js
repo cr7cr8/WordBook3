@@ -96,7 +96,7 @@ import { ReText } from 'react-native-redash';
 
 import RateBar from './SettingScreenComp/RateBar';
 import ReadingTimesBar from './SettingScreenComp/ReadingTimesBar';
-
+import ExportFileButton from './SettingScreenComp/ExportFileButton';
 
 
 
@@ -104,7 +104,9 @@ export default function SettingScreen() {
     const { setSouceWordArr, saveWordToFile, sourceWordArr, refreshState, setRefreshState, wordPos, scrollX, scrollRef0,
         scrollRef, scrollRef2, preTop, isSaving,
 
-        selectedLevelArr, isNewerstOnTop, smallIndex, largeIndex, enableSlice, wordRepeatingArr, sentenceRepeatingArr, sameAmountWord, sameAmountSentence } = useContext(Context)
+        selectedLevelArr, isNewerstOnTop, smallIndex, largeIndex, enableSlice, wordRepeatingArr, sentenceRepeatingArr, sameAmountWord, sameAmountSentence,
+        exportFileName
+    } = useContext(Context)
 
     const file = new File(Paths.document, "allwords.txt")
 
@@ -174,6 +176,7 @@ export default function SettingScreen() {
 
 
 
+        exportFileName.value = exportFileName.value.replace(/[^\w\u4E00-\u9FFF.]+/g, "") || "WordList.txt"
 
 
 
@@ -229,18 +232,19 @@ export default function SettingScreen() {
                 wordRepeatingArr: wordRepeatingArr.value,
                 sentenceRepeatingArr: sentenceRepeatingArr.value,
                 sameAmountWord: sameAmountWord.value,
-                sameAmountSentence: sameAmountSentence.value
+                sameAmountSentence: sameAmountSentence.value,
+                exportFileName: exportFileName.value
             }
 
             configFile.write(JSON.stringify(configObj), {})
 
-
+          
 
         }, 500);
 
 
 
-
+        return newArr
 
     }
 
@@ -376,7 +380,12 @@ export default function SettingScreen() {
 
     }, [textRef1.current, textRef2.current])
 
+    const inRangeCount = useDerivedValue(() => {
+        const localSmall = (Number)(formattedText1.value) <= (Number)(formattedText2.value) ? (Number)(formattedText1.value) : (Number)(formattedText2.value)
+        const localLarge = (Number)(formattedText1.value) >= (Number)(formattedText2.value) ? (Number)(formattedText1.value) : (Number)(formattedText2.value)
 
+        return !localEnableSlice ? allWords.length + "" : (localLarge - localSmall) + 1 + "/" + allWords.length
+    })
 
     return (
 
@@ -396,7 +405,16 @@ export default function SettingScreen() {
 
 
                     <View style={{ width: screenWidth, height: 80, flexDirection: "row", alignItems: "flex-end", justifyContent: "space-around" }}>
-                        <Text style={{ color: "#a75d09", fontSize: 20, fontWeight: 600 }}>Slice total {allWords.length}</Text>
+                        {/* <Text style={{ color: "#a75d09", fontSize: 20, fontWeight: 600 }}>Slice total { }/{allWords.length}</Text> */}
+                        <ReText text={inRangeCount} color="#a75d09" fontSize={20}
+                            style={{
+                                fontWeight: 600,
+                                alignItems: "center",
+                                justifyContent: "space-around",
+                                transform: [{ translateY: 10 }]
+                            }}
+                        />
+
                         <Switch
                             //thumbColor={"green"}
                             color='orange'
@@ -771,6 +789,14 @@ export default function SettingScreen() {
 
                 < ReadingTimesBar isForWord={true} />
                 < ReadingTimesBar isForWord={false} />
+                <ExportFileButton filterLevel={filterLevel} allWords={allWords} setAllWords={setAllWords}
+
+                    formattedText1={formattedText1}
+                    formattedText2={formattedText2}
+                    localEnableSlice={localEnableSlice}
+                    levelArr={levelArr}
+
+                />
             </View >
 
 

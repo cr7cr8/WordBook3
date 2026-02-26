@@ -1033,7 +1033,7 @@ function HeadRight({ props, sourceWord }) {
             }, 100);
 
             setRefreshState(Math.random())
-            
+
 
 
 
@@ -1041,7 +1041,7 @@ function HeadRight({ props, sourceWord }) {
                 setSouceWordArr(sourceWordArr => {
                     return arr
                 })
-            }, sourceWordArr.length>1?0:500);// need 500 second to make sure scroll animation finish
+            }, sourceWordArr.length > 1 ? 0 : 500);// need 500 second to make sure scroll animation finish
 
 
 
@@ -1049,7 +1049,7 @@ function HeadRight({ props, sourceWord }) {
 
 
 
-        }, 0); 
+        }, 0);
 
 
 
@@ -1374,7 +1374,7 @@ export function EditorCard() {
                 return {
                     width: screenWidth,
                     height: screenHeight,
-                    backgroundColor: "#29e",
+                    backgroundColor: "rgba(222, 229, 182, 1)",
                     top: 0,
                     left: 0,
                     transform: [{ translateY: editorCardY.value }],
@@ -1423,6 +1423,8 @@ export function EditorCard() {
                                 size={50}
                             />
                         </TouchableOpacity>
+
+
 
                         <TouchableOpacity activeOpacity={0.2} onPressOut={async function () {
                             console.log("aaaa")
@@ -1564,8 +1566,20 @@ export function EditorCard() {
                 </GestureDetector>
 
                 <View style={{ flexDirection: "row", alignSelf: "center" }}>
-                    <Text style={{ fontSize: 27, marginHorizontal: 4, alignSelf: "center" }}>{`${sourceWord.wordName}`}</Text>
-                    <Text style={{ fontSize: 20, marginHorizontal: 4, alignSelf: "center" }}>{`[${sentenceIndex}]`}</Text>
+                    <Text style={{ fontSize: 27, marginHorizontal: 4, alignSelf: "center", color: "#a75d09" }}>{`${sourceWord.wordName}`}</Text>
+                    <Text style={{ fontSize: 25, marginHorizontal: 4, alignSelf: "center", color: "#a75d09" }}>{`[${sentenceIndex}]`}</Text>
+                    <Icon
+                        name="close-outline" type='ionicon' color="#a75d09"
+                        containerStyle={{ width: 50, height: 50, transform: [{ rotateZ: "0deg" }, { translateY: 4 }] }}
+                        size={45}
+                        onPress={() => {
+
+                            setEnText("")
+                            setChText("")
+                            Keyboard.dismiss()
+                            inputRefEN.current.focus()
+                        }}
+                    />
                 </View>
                 <TouchableOpacity
 
@@ -1586,7 +1600,7 @@ export function EditorCard() {
                         value={enText}
                         multiline={true}
                         autoFocus={false}
-                        style={{ padding: 0, paddingHorizontal: 4 }}
+                        style={{ padding: 0, paddingHorizontal: 4, }}
                         inputContainerStyle={{
 
                             //left: -4,
@@ -1596,15 +1610,14 @@ export function EditorCard() {
                             height: 130,
                             width: (screenWidth - 8), borderWidth: 1, borderColor: "black", margin: 0, backgroundColor: "#aaa",
                             justifyContent: "flex-start", alignItems: "flex-start",
-                            alignSelf: "center"
+                            alignSelf: "center",
+
                         }}
 
                         onChangeText={function (text) {
                             setEnText(text)
                         }}
-                    // onPressIn={function () {
-                    //     inputRefEn.current.focus()
-                    // }}
+
                     />
                 </TouchableOpacity>
 
@@ -1675,7 +1688,7 @@ export function EditorCard() {
                         return {
                             width: screenWidth,
                             //height: 80,
-                            backgroundColor: "rgba(121, 229, 182, 1)",
+                            backgroundColor: "rgba(222, 229, 182, 1)",
                             flexDirection: "row-reverse",
                             alignItems: "flex-end",
                             paddingHorizontal: 4,

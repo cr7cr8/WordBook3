@@ -104,6 +104,8 @@ export default function ContextProvider(props) {
     const sameAmountWord = useSharedValue(false)
     const sameAmountSentence = useSharedValue(false)
 
+    const exportFileName = useSharedValue("WordList.txt")
+
     useEffect(() => {
 
 
@@ -135,7 +137,7 @@ export default function ContextProvider(props) {
 
             sameAmountWord.value = false
             sameAmountSentence.value = false
-
+            exportFileName.value = "WordList.txt"
 
             setTimeout(() => {
                 let configObj = {
@@ -147,7 +149,8 @@ export default function ContextProvider(props) {
                     wordRepeatingArr: wordRepeatingArr.value,
                     sentenceRepeatingArr: sentenceRepeatingArr.value,
                     sameAmountWord: sameAmountWord.value,
-                    sameAmountSentence: sameAmountSentence.value
+                    sameAmountSentence: sameAmountSentence.value,
+                    exportFileName:exportFileName.value
                 }
                 const configFile = new File(Paths.document, "config.json")
                 !configFile.exists && configFile.create({ intermediates: true, overwrite: false })
@@ -178,6 +181,7 @@ export default function ContextProvider(props) {
 
                 sameAmountWord.value = false
                 sameAmountSentence.value = false
+                exportFileName.value = "WordList.txt"
 
 
                 setTimeout(() => {
@@ -190,7 +194,8 @@ export default function ContextProvider(props) {
                         wordRepeatingArr: wordRepeatingArr.value,
                         sentenceRepeatingArr: sentenceRepeatingArr.value,
                         sameAmountWord: sameAmountWord.value,
-                        sameAmountSentence: sameAmountSentence.value
+                        sameAmountSentence: sameAmountSentence.value,
+                        exportFileName:exportFileName.value
                     }
                     configFile.write(JSON.stringify(configObj), {})
                 }, 0);
@@ -206,6 +211,7 @@ export default function ContextProvider(props) {
                 sentenceRepeatingArr.value = configObj.sentenceRepeatingArr
                 sameAmountWord.value = configObj.sameAmountWord
                 sameAmountSentence.value = configObj.sameAmountSentence
+                exportFileName.value = configObj.exportFileName
 
             }
 
@@ -765,7 +771,7 @@ export default function ContextProvider(props) {
             stopSpeak, checkPlaying, speak,
             sentencePlayingIndex, autoPlay,
             newWordText, setNewWordText,
-            selectedLevelArr, smallIndex, largeIndex, enableSlice, wordRepeatingArr, sentenceRepeatingArr, sameAmountWord, sameAmountSentence,
+            selectedLevelArr, smallIndex, largeIndex, enableSlice, wordRepeatingArr, sentenceRepeatingArr, sameAmountWord, sameAmountSentence,exportFileName,
             isSaving
         }}>
 
