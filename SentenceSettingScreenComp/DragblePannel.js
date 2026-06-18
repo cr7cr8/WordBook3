@@ -919,7 +919,7 @@ function HeadLeft({ props, sourceWord, item }) {
 
 function HeadRight({ props, sourceWord }) {
 
-    const { sourceWordArr, setSouceWordArr, saveWordToFile, downloadWord, deleteDownloadWord, isScrollingY,
+    const { sourceWordArr, setSouceWordArr, saveWordToFile, downloadWord, deleteDownloadWord, isScrollingY, totalWordsNum,
         isScrollingX,
         setRefreshState, wordPos, scrollRef, scrollRef2, isListPlaying, deleteWordToFile, smallIndex, largeIndex } = useContext(Context)
 
@@ -998,6 +998,7 @@ function HeadRight({ props, sourceWord }) {
         setTimeout(() => {
 
             console.log("start deleting word")
+            totalWordsNum.value = totalWordsNum.value - 1
             const arr = sourceWordArr.filter((word, index, arr) => {
                 if (sourceWord.wordName === word.wordName) {
                     if (wordPos.value === arr.length - 1) {
@@ -1591,7 +1592,6 @@ export function EditorCard() {
                     style={{ flexDirection: "row", justifyContent: "flex-start", alignItems: "flex-start", height: 140 }}
                 >
                     <Input
-
                         onLayout={() => {
                             Keyboard.dismiss()
                         }}
@@ -1655,12 +1655,55 @@ export function EditorCard() {
                         onChangeText={function (text) {
                             setChText(text)
                         }}
-                    // onPressIn={function () {
-                    //     inputRefEn.current.focus()
-                    // }}
+
                     />
                 </TouchableOpacity>
+                <Icon
+                    name="save-outline" type='ionicon' color="orange"
+                    containerStyle={{
+                        backgroundColor: "transparent",
+                        width: screenWidth - 8,
+                        height: 50, borderWidth: 0, borderColor: "orange", flexDirection: "row",
+                        alignItems: "center", justifyContent: "center",
+                        transform: [{ rotateZ: "0deg" }, { translateY: 0 }, { translateX: 4 }, { scale: sentenceIndex == -1 ? 1 : 0 }],
 
+
+                    }}
+                    size={45}
+                    onPress={() => {
+                        const newChText = chText.replace(/[A-Za-z]+/g, " ").trim()
+                        setChText(newChText)
+
+
+                        setTimeout(() => {
+                            setSouceWordArr((sourceWordArr) => {
+
+                                const arr = sourceWordArr.map(item => {
+                                    if (item.wordName !== sourceWord.wordName) {
+                                        return item
+                                    }
+                                    else {
+
+                                        const newSourceWord = JSON.parse(JSON.stringify(sourceWord))
+                                        newSourceWord.meaning = enText
+                                        newSourceWord.meaningSound = newChText
+
+                                        return newSourceWord
+                                    }
+                                })
+
+                                return arr
+                            })
+
+                            setTimeout(() => {
+                                saveWordToFile()
+                            }, 100);
+
+                        }, 100);
+
+
+                    }}
+                />
                 <GestureDetector gesture={Gesture.Pan()
                     .onChange(e => {
                         // editorCardY.value = Math.max(0, editorCardY.value + e.changeY)

@@ -102,7 +102,7 @@ import ExportFileButton from './SettingScreenComp/ExportFileButton';
 
 export default function SettingScreen() {
     const { setSouceWordArr, saveWordToFile, sourceWordArr, refreshState, setRefreshState, wordPos, scrollX, scrollRef0,
-        scrollRef, scrollRef2, preTop, isSaving,
+        scrollRef, scrollRef2, preTop, isSaving, totalWordsNum,
 
         selectedLevelArr, isNewerstOnTop, smallIndex, largeIndex, enableSlice, wordRepeatingArr, sentenceRepeatingArr, sameAmountWord, sameAmountSentence,
         exportFileName
@@ -238,11 +238,13 @@ export default function SettingScreen() {
 
             configFile.write(JSON.stringify(configObj), {})
 
-          
+            setTimeout(() => {
+                setRefreshState(Math.random())
+            }, 0);
 
         }, 500);
 
-
+        
 
         return newArr
 
@@ -380,11 +382,17 @@ export default function SettingScreen() {
 
     }, [textRef1.current, textRef2.current])
 
+
+
+
     const inRangeCount = useDerivedValue(() => {
         const localSmall = (Number)(formattedText1.value) <= (Number)(formattedText2.value) ? (Number)(formattedText1.value) : (Number)(formattedText2.value)
         const localLarge = (Number)(formattedText1.value) >= (Number)(formattedText2.value) ? (Number)(formattedText1.value) : (Number)(formattedText2.value)
 
-        return !localEnableSlice ? allWords.length + "" : (localLarge - localSmall) + 1 + "/" + allWords.length
+        //return !localEnableSlice ? allWords.length + "" : (localLarge - localSmall) + 1 + "/" + allWords.length
+
+        return !localEnableSlice ? totalWordsNum.value + "" : (localLarge - localSmall) + 1 + "/" + totalWordsNum.value
+
     })
 
     return (
@@ -797,6 +805,18 @@ export default function SettingScreen() {
                     levelArr={levelArr}
 
                 />
+                <GestureDetector gesture={Gesture.Pan().onEnd(e=>{
+                    if(e.velocityY>1000){
+                        scheduleOnRN(navigation.goBack)
+                        scheduleOnRN(filterLevel)
+                    }
+                    else if(e.velocityY<-1000){
+                        scheduleOnRN(navigation.goBack)
+                    }
+                })}>
+                      <View style={{width:screenWidth,height:200,backgroundColor:"transparent"}}></View>
+                </GestureDetector>
+              
             </View >
 
 

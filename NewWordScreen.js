@@ -67,7 +67,7 @@ import {
 
 export default function NewWordScreen() {
     const navigation = useNavigation()
-    const { speak, sourceWordArr, setSouceWordArr, saveWordToFile, isSaving, newWordText, setNewWordText, isNewerstOnTop, setRefreshState } = useContext(Context)
+    const { speak, sourceWordArr, setSouceWordArr, saveWordToFile, isSaving, newWordText, setNewWordText, isNewerstOnTop, setRefreshState, totalWordsNum } = useContext(Context)
     const newWordPanelStyle = useAnimatedStyle(() => {
 
         return {
@@ -273,6 +273,7 @@ export default function NewWordScreen() {
                                 }, 0);
                             }
                             else {
+                                totalWordsNum.value = totalWordsNum.value + 1
                                 const newWord = {
                                     "wordName": newWordText,
                                     "meaning": "",
@@ -398,11 +399,11 @@ export default function NewWordScreen() {
                                             }, 0);
                                         }
                                         else {
-
+                                            totalWordsNum.value = totalWordsNum.value + 1
                                             const newWord = {
                                                 "wordName": item.entry,
                                                 "meaning": item.explain || "",
-                                                "meaningSound": item.explain || "",
+                                                "meaningSound": item.explain.replace(/[A-Za-z]+/g, " ").trim() || "",
                                                 "createTime": Date.now(),
                                                 "toppingTime": Date.now(),
                                                 "exampleEnglishArr": [],

@@ -53,7 +53,7 @@ export default function ContextProvider(props) {
 
 
     const [sourceWordArr, setSouceWordArr] = useState([])
-
+    const totalWordsNum = useSharedValue(0)
 
 
 
@@ -150,7 +150,7 @@ export default function ContextProvider(props) {
                     sentenceRepeatingArr: sentenceRepeatingArr.value,
                     sameAmountWord: sameAmountWord.value,
                     sameAmountSentence: sameAmountSentence.value,
-                    exportFileName:exportFileName.value
+                    exportFileName: exportFileName.value
                 }
                 const configFile = new File(Paths.document, "config.json")
                 !configFile.exists && configFile.create({ intermediates: true, overwrite: false })
@@ -164,11 +164,12 @@ export default function ContextProvider(props) {
                 saveWordToFile()
             }, 100);
 
+            totalWordsNum.value = arr.length 
         }
         else {
 
             let arr = JSON.parse(wordFile.textSync())
-
+            totalWordsNum.value = arr.length 
 
             const configFile = new File(Paths.document, "config.json")
             if (!configFile.exists) {
@@ -195,7 +196,7 @@ export default function ContextProvider(props) {
                         sentenceRepeatingArr: sentenceRepeatingArr.value,
                         sameAmountWord: sameAmountWord.value,
                         sameAmountSentence: sameAmountSentence.value,
-                        exportFileName:exportFileName.value
+                        exportFileName: exportFileName.value
                     }
                     configFile.write(JSON.stringify(configObj), {})
                 }, 0);
@@ -271,8 +272,8 @@ export default function ContextProvider(props) {
 
         function (word1, word2, fn) {
             Vibration.vibrate(50)
-            // Alert.alert("Not supported in free version")
-            // return
+            //    Alert.alert("Not supported in free version")
+            //    return
             const hashName1 = CryptoJS(word1).toString();
             const hashName2 = CryptoJS(word2).toString();
             const hashName = hashName1 + hashName2;
@@ -759,7 +760,7 @@ export default function ContextProvider(props) {
     return (
 
         <Context.Provider value={{
-            sourceWordArr, setSouceWordArr,
+            sourceWordArr, setSouceWordArr, totalWordsNum,
             isNewerstOnTop,
             saveWordToFile,
 
@@ -771,7 +772,7 @@ export default function ContextProvider(props) {
             stopSpeak, checkPlaying, speak,
             sentencePlayingIndex, autoPlay,
             newWordText, setNewWordText,
-            selectedLevelArr, smallIndex, largeIndex, enableSlice, wordRepeatingArr, sentenceRepeatingArr, sameAmountWord, sameAmountSentence,exportFileName,
+            selectedLevelArr, smallIndex, largeIndex, enableSlice, wordRepeatingArr, sentenceRepeatingArr, sameAmountWord, sameAmountSentence, exportFileName,
             isSaving
         }}>
 

@@ -231,7 +231,9 @@ export function HeaderBar() {
 
 
                         <GestureDetector gesture={Gesture.Tap().onEnd(() => {
+                            if (sourceWordArr.length === 0) {  return }
                             isListPlaying.value = !isListPlaying.value
+
 
                             if (isListPlaying.value) { runOnJS(autoPlay)() }
                             else { runOnJS(stopSpeak)() }

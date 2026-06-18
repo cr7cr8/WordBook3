@@ -79,7 +79,7 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
 }) {
 
 
-    const { sourceWordArr, setSouceWordArr, scrollRef0, scrollRef, scrollRef2, frameTransY, wordPos, isListPlaying, preLeft, preTop, scrollY, scrollX,
+    const { sourceWordArr, setSouceWordArr, totalWordsNum, scrollRef0, scrollRef, scrollRef2, frameTransY, wordPos, isListPlaying, preLeft, preTop, scrollY, scrollX,
         isPanning, speak, autoPlay, stopSpeak, isScrollingY, isScrollingX, isCardMoving, isManualDrag, shouldHideWordBlock, isNewerstOnTop, setRefreshState,
         selectedLevelArr, smallIndex, largeIndex, enableSlice, wordRepeatingArr, sentenceRepeatingArr, sameAmountWord, sameAmountSentence, exportFileName,
     } = useContext(Context)
@@ -104,6 +104,9 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
 
                     ],
                 })
+                setTimeout(() => {
+                    setRefreshState(Math.random())
+                }, 500);
             }, 500);
 
 
@@ -112,7 +115,7 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
             const arr = JSON.parse(file.textSync())
 
             setTimeout(() => {
-
+                totalWordsNum.value = arr.length
                 formattedText1.value = 0 + ""
                 formattedText2.value = arr.length + ""
                 let configObj = {
@@ -135,8 +138,6 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
                 configFile.create({ intermediates: true, overwrite: true })
                 configFile.write(JSON.stringify(configObj), {})
 
-
-
                 isNewerstOnTop.value = true
                 selectedLevelArr.value = [true, true, true, true, true, true];
                 smallIndex.value = 0;
@@ -149,14 +150,10 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
                 const allWordsFile = new File(Paths.document, "allwords.txt")
                 allWordsFile.create({ intermediates: true, overwrite: true })
                 allWordsFile.write(JSON.stringify(arr), {})
-
+                wordPos.value = 0
                 setSouceWordArr(arr)
+
             }, 0);
-
-
-
-
-
 
 
 
@@ -166,35 +163,11 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
     }
 
     async function exportTextFile() {
-        console.log("exporting word text file ....")
-        // to do export textfile
-
-
-
-        const file = new File(Paths.document, "allwords.txt")
-
 
         const directory = await Directory.pickDirectoryAsync("Documents");
-        //const createdFile = directory.createFile("newWord" + Date.now() + ".txt", "application/json");
-        const createdFile = directory.createFile(("" + Date.now()).slice(0, 10), "text/plain");
-        createdFile.write(file.textSync());
-        // file.exists && async function () {
+        const createdFile = directory.createFile(String(localFileName.slice(-4)).toLowerCase() === ".txt" ? localFileName : localFileName + ".txt", "text/plain");
+        createdFile.write(JSON.stringify(allWords));
 
-        //     const { status } = await MediaLibrary.requestPermissionsAsync();
-        //     if (status !== 'granted') {
-        //         alert('Permission to access media library is required!');
-        //         return;
-        //     }
-
-
-        //     try {
-        //         const asset = await MediaLibrary.createAssetAsync(file.uri);
-        //         console.log('Asset created:', asset);
-        //     } catch (error) {
-        //         console.error('Error creating asset:', error);
-        //     }
-
-        // }()
     }
 
     async function exportSourceWordArr() {
@@ -337,27 +310,31 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
                 }
 
             })}>
-                <Icon name="enter-outline" type='ionicon' color='orange'
-                    containerStyle={{ width: 40, height: 40, transform: [{ rotateZ: "90deg" }, { translateX: 1 }] }}
-                    size={40}
-                    onPress={(e) => {
 
-                        loadTextFile()
-
-                    }}
-
-                />
                 <Icon name="exit-outline" type='ionicon' color='orange'
                     containerStyle={{ width: 40, height: 40, transform: [{ rotateZ: "270deg" }, { translateX: 1 }] }}
                     size={40}
                     onPress={(e) => {
                         exportSourceWordArr()
                     }}
+                />
+                <Icon name="exit" type='ionicon' color='orange'
+                    containerStyle={{ width: 40, height: 40, transform: [{ rotateZ: "270deg" }, { translateX: 1 }] }}
+                    size={40}
+                    onPress={(e) => {
+                        exportTextFile()
+                    }}
+                />
+                <Icon name="enter-outline" type='ionicon' color='orange'
+                    containerStyle={{ width: 40, height: 40, transform: [{ rotateZ: "90deg" }, { translateX: 1 }] }}
+                    size={40}
+                    onPress={(e) => {
+                        loadTextFile()
+
+                    }}
 
                 />
-                <Icon name="exit-outline" type='ionicon' color='orange'
-                    containerStyle={{ width: 40, height: 40, transform: [{ rotateZ: "270deg" }, { translateX: 1 }] }}
-                    size={40} />
+
             </View>
         </View>
 
