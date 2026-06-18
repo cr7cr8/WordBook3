@@ -208,7 +208,7 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
                 }
             }, 0);
 
-        }) 
+        })  
 
         return function () {
             listener1.remove()
