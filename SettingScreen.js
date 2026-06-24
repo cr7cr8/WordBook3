@@ -244,7 +244,7 @@ export default function SettingScreen() {
 
         }, 500);
 
-        
+
 
         return newArr
 
@@ -394,6 +394,10 @@ export default function SettingScreen() {
         return !localEnableSlice ? totalWordsNum.value + "" : (localLarge - localSmall) + 1 + "/" + totalWordsNum.value
 
     })
+
+    function vibrate() {
+        Vibration.vibrate(50)
+    }
 
     return (
 
@@ -795,8 +799,8 @@ export default function SettingScreen() {
                 </View> */}
 
 
-                < ReadingTimesBar isForWord={true} />
-                < ReadingTimesBar isForWord={false} />
+                <ReadingTimesBar isForWord={true} />
+                <ReadingTimesBar isForWord={false} />
                 <ExportFileButton filterLevel={filterLevel} allWords={allWords} setAllWords={setAllWords}
 
                     formattedText1={formattedText1}
@@ -805,7 +809,52 @@ export default function SettingScreen() {
                     levelArr={levelArr}
 
                 />
-                <GestureDetector gesture={Gesture.Pan().onEnd(e=>{
+
+                <GestureDetector gesture={
+
+                    Gesture.Simultaneous(
+                        // Gesture.Tap().onStart(e => {
+                        //     console.log(Math.random())
+                        //     //  scheduleOnRN(vibrate)
+                        // }),
+                        // Gesture.LongPress().onStart(e => {
+                        //     scheduleOnRN(vibrate)
+
+                        // }),
+                        Gesture.Pan().onEnd(e => {
+                            //   console.log(e.absoluteX)
+
+                            if (e.velocityY > 1000) {
+                                scheduleOnRN(navigation.goBack)
+                                scheduleOnRN(filterLevel)
+                            }
+                            else if (e.velocityY < -1000) {
+                                scheduleOnRN(navigation.goBack)
+                            }
+                        })
+                    )
+
+                }>
+                    <View style={useAnimatedStyle(() => {
+
+                        return {
+                             display:"flex",
+                            //width: screenWidth,
+                            flex: 1,
+                            backgroundColor: "transparent",
+
+                        }
+
+
+                    })}>
+
+                    </View>
+
+                </GestureDetector>
+
+
+
+                {/* <GestureDetector gesture={Gesture.Pan().onEnd(e=>{
                     if(e.velocityY>1000){
                         scheduleOnRN(navigation.goBack)
                         scheduleOnRN(filterLevel)
@@ -814,9 +863,9 @@ export default function SettingScreen() {
                         scheduleOnRN(navigation.goBack)
                     }
                 })}>
-                      <View style={{width:screenWidth,height:200,backgroundColor:"transparent"}}></View>
-                </GestureDetector>
-              
+                      <View style={{width:screenWidth,height:200,backgroundColor:"yellow"}}></View>
+                </GestureDetector> */}
+
             </View >
 
 

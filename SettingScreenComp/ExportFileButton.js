@@ -13,7 +13,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { StyleSheet, Dimensions, TouchableOpacity, SafeAreaView, RefreshControl, BackHandler, Alert, Button, Vibration, Keyboard } from 'react-native';
 const screenWidth = Dimensions.get('screen').width
 const screenHeight = Dimensions.get('screen').height
-import superagent, { PATCH, source } from "superagent"
+import superagent, { options, PATCH, source } from "superagent"
 //import * as FileSystem from 'expo-file-system';
 import { Directory, File, Paths } from "expo-file-system";
 import {
@@ -81,7 +81,7 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
 
     const { sourceWordArr, setSouceWordArr, totalWordsNum, scrollRef0, scrollRef, scrollRef2, frameTransY, wordPos, isListPlaying, preLeft, preTop, scrollY, scrollX,
         isPanning, speak, autoPlay, stopSpeak, isScrollingY, isScrollingX, isCardMoving, isManualDrag, shouldHideWordBlock, isNewerstOnTop, setRefreshState,
-        selectedLevelArr, smallIndex, largeIndex, enableSlice, wordRepeatingArr, sentenceRepeatingArr, sameAmountWord, sameAmountSentence, exportFileName,
+        selectedLevelArr, smallIndex, largeIndex, enableSlice, wordRepeatingArr, sentenceRepeatingArr, sameAmountWord, sameAmountSentence, exportFileName, isSaving,
     } = useContext(Context)
     const navigation = useNavigation()
     const [localFileName, setLocalFileName] = useState(exportFileName.value)
@@ -208,7 +208,7 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
                 }
             }, 0);
 
-        })  
+        })
 
         return function () {
             listener1.remove()
@@ -221,7 +221,45 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
 
     }, [localFileName])
 
+    function vibrate() {
+        Vibration.vibrate(50)
+    }
 
+    const showConfirmation = () => {
+        Alert.alert(
+            "Delete all sound",
+            "Are you sure you want to delete all sound files?",
+            [
+                {
+                    text: "No",
+                    onPress: () => console.log("Cancel Pressed"),
+                    style: "cancel"
+                },
+                {
+                    text: "Yes",
+                    onPress: () => {
+                        isSaving.value = true
+                        Paths.document.list().forEach((file, index) => {
+
+                            if ((file.extension === ".mp3") && (file.name.length >= 128)) {
+
+                                file.delete()
+
+
+                            }
+
+
+                        })
+                        setTimeout(() => {
+
+                            isSaving.value = false
+                        }, 100);
+
+                    }
+                }
+            ]
+        );
+    };
 
     return (
         <View style={useAnimatedStyle(() => {
@@ -229,7 +267,7 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
             return {
                 flexDirection: "column",
                 width: screenWidth,
-                height: 120,
+                height: "auto",
                 backgroundColor: "#e7cca0",
                 marginTop: 4,
                 transform: [{ translateY: withTiming(-keyboardHeight.value) }],
@@ -237,6 +275,8 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
 
 
         })}>
+
+
 
             <View style={useAnimatedStyle(() => {
                 return {
@@ -251,20 +291,14 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
 
                     editable={true}
                     onChangeText={text => {
-
                         exportFileName.value = text
-
-
-
-
-
-
                     }}
 
                     onPressIn={() => {
                         shouldMove.current = true
                         console.log("inin")
-                    }} /> */}
+                    }} /> 
+                */}
 
                 <Input
 
@@ -306,7 +340,9 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
 
                 return {
                     flexDirection: "row",
-                    justifyContent: "space-around"
+                    justifyContent: "space-around",
+                    backgroundColor: "transparent",
+
                 }
 
             })}>
@@ -335,7 +371,219 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
 
                 />
 
+
             </View>
+
+
+            <View style={useAnimatedStyle(() => {
+
+                return {
+                    marginTop: 16,
+                    flexDirection: "row",
+                    justifyContent: "space-around",
+                    backgroundColor: "transparent",
+                    paddingBottom: 16
+
+                }
+
+            })}>
+
+                <Icon name="trash" type='ionicon' color='orange'
+                    containerStyle={{ width: 40, height: 40, transform: [{ rotateZ: "0deg" }, { translateX: 1 }] }}
+                    size={40}
+                    onPress={(e) => {
+
+                        vibrate()
+                        showConfirmation()
+                    }}
+                />
+
+
+
+                <Icon name="exit-outline" type='ionicon' color='orange'
+                    containerStyle={{ width: 40, height: 40, transform: [{ rotateZ: "270deg" }, { translateX: 1 }] }}
+                    size={40}
+                    onPress={(e) => {
+                        console.log("aaffff555-----fff")
+
+                        const wordNameArr = sourceWordArr.map(word => {
+                            const hashName1 = CryptoJS(word.wordName).toString()
+                            return hashName1
+                        })
+
+
+                        const mp3List = []
+                        Paths.document.list()
+                            .filter(file => { return (file.name.length >= 128 && file.extension === ".mp3") })
+                            .forEach((file, index) => {
+                                const fileName = file.name.substring(0, 64)
+                                if (wordNameArr.includes(fileName)) {
+                                    mp3List.push(file)
+                                }
+                            })
+
+
+
+
+                        if (mp3List.length > 0) {
+                            isSaving.value = true
+                            setTimeout(() => {
+                                Directory.pickDirectoryAsync("Documents").then(directory => {
+
+                                    const newDirectory = directory.createDirectory(String(localFileName.slice(-4)).toLowerCase() === ".txt"
+                                        ? localFileName
+                                        : localFileName + ".txt"
+                                    )
+
+                                    mp3List.forEach((file, index) => {
+                                        console.log(file.name, "---" + index)
+                                        const createdFile = newDirectory.createFile(file.name, "audio/mp3");
+                                        createdFile.write(file.bytesSync(), { intermediates: true, overwrite: true }); // overwrite not working in external storage
+                                    })
+
+                                    isSaving.value = false
+
+                                }).catch(() => {
+                                    isSaving.value = false
+                                })
+                            }, 100);
+
+
+                        }
+
+                    }}
+                />
+                <Icon name="exit" type='ionicon' color='orange'
+                    containerStyle={{ width: 40, height: 40, transform: [{ rotateZ: "270deg" }, { translateX: 1 }] }}
+                    size={40}
+                    onPress={(e) => {
+                        console.log("aaffff555-----fff-----")
+                        const wordFile = new File(Paths.document, "allwords.txt")
+
+
+                        const wordNameArr = JSON.parse(wordFile.textSync()).map(word => {
+                            const hashName1 = CryptoJS(word.wordName).toString()
+                            return hashName1
+                        })
+
+                        // console.log(wordNameArr.length, JSON.parse(wordFile.textSync()).length)
+
+
+
+
+
+                        const mp3List = []
+                        Paths.document.list()
+
+                            .filter(file => { return (file.name.length >= 128 && file.extension === ".mp3") })
+                            .forEach((file, index) => {
+                                const fileName = file.name.substring(0, 64)
+                                if (wordNameArr.includes(fileName)) {
+                                    mp3List.push(file)
+                                }
+                            })
+
+                        if (mp3List.length > 0) {
+                            isSaving.value = true
+                            setTimeout(() => {
+                                Directory.pickDirectoryAsync("Documents").then(directory => {
+
+                                    const newDirectory = directory.createDirectory(String(localFileName.slice(-4)).toLowerCase() === ".txt"
+                                        ? localFileName
+                                        : localFileName + ".txt"
+                                    )
+
+                                    mp3List.forEach((file, index) => {
+                                        console.log(file.name, "---" + index)
+                                        const createdFile = newDirectory.createFile(file.name, "audio/mp3");
+                                        createdFile.write(file.bytesSync(), { intermediates: true, overwrite: true }); // overwrite not working in external storage
+                                    })
+
+                                    isSaving.value = false
+
+                                }).catch(() => {
+                                    isSaving.value = false
+                                })
+                            }, 100);
+
+
+                        }
+
+
+                    }}
+                />
+
+                <Icon name="enter-outline" type='ionicon' color='orange'
+                    containerStyle={{ width: 40, height: 40, transform: [{ rotateZ: "90deg" }, { translateX: 1 }] }}
+                    size={40}
+                    onPress={(e) => {
+
+                        isSaving.value = true
+
+                        const mp3List = []
+                        Paths.document.list()
+                            .filter(file => { return (file.name.length >= 128 && file.extension === ".mp3") })
+                            .forEach((file, index) => { mp3List.push(file.name) })
+
+
+                        Directory.pickDirectoryAsync("Documents").then(directory => {
+
+                            directory.list()
+                                .filter(file => { return (file.name.length >= 128 && file.extension === ".mp3" && !mp3List.includes(file.name)) })
+                                .forEach(file => {
+
+                                    const mp3File = new File(Paths.document, file.name)
+                                    mp3File.create({ intermediates: true, overwrite: true })
+                                    mp3File.write(file.bytesSync(), {})
+
+                                })
+
+                        }).finally(() => {
+                            setTimeout(() => {
+                                isSaving.value = false
+                            }, 100);
+                        })
+
+                    }}
+
+                />
+
+
+
+
+            </View>
+
+            {/* <View style={useAnimatedStyle(() => {
+
+                return {
+                    marginTop: 16,
+                    flexDirection: "row",
+                    justifyContent: "space-around",
+                    backgroundColor: "lightblue",
+
+                }
+
+            })}>
+
+
+            </View> */}
+
+
+
+            {/* <Button title="delete" onPress={e => {
+                console.log("fdsfsa")
+                Paths.document.list().forEach((file, index) => {
+
+                    if ((file.extension === ".mp3") && (file.name.length >= 128)) {
+
+                        file.delete()
+
+
+                    }
+
+
+                })
+            }} /> */}
         </View>
 
     )
