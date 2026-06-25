@@ -82,6 +82,7 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
     const { sourceWordArr, setSouceWordArr, totalWordsNum, scrollRef0, scrollRef, scrollRef2, frameTransY, wordPos, isListPlaying, preLeft, preTop, scrollY, scrollX,
         isPanning, speak, autoPlay, stopSpeak, isScrollingY, isScrollingX, isCardMoving, isManualDrag, shouldHideWordBlock, isNewerstOnTop, setRefreshState,
         selectedLevelArr, smallIndex, largeIndex, enableSlice, wordRepeatingArr, sentenceRepeatingArr, sameAmountWord, sameAmountSentence, exportFileName, isSaving,
+
     } = useContext(Context)
     const navigation = useNavigation()
     const [localFileName, setLocalFileName] = useState(exportFileName.value)
@@ -426,6 +427,7 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
 
 
                         if (mp3List.length > 0) {
+
                             isSaving.value = true
                             setTimeout(() => {
                                 Directory.pickDirectoryAsync("Documents").then(directory => {
@@ -438,7 +440,8 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
                                     mp3List.forEach((file, index) => {
                                         console.log(file.name, "---" + index)
                                         const createdFile = newDirectory.createFile(file.name, "audio/mp3");
-                                        createdFile.write(file.bytesSync(), { intermediates: true, overwrite: true }); // overwrite not working in external storage
+                                        createdFile.write(file.bytesSync(), { encoding: "utf8" });
+
                                     })
 
                                     isSaving.value = false
@@ -466,7 +469,7 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
                             return hashName1
                         })
 
-                        // console.log(wordNameArr.length, JSON.parse(wordFile.textSync()).length)
+
 
 
 
@@ -484,8 +487,12 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
                             })
 
                         if (mp3List.length > 0) {
+
                             isSaving.value = true
+
+
                             setTimeout(() => {
+
                                 Directory.pickDirectoryAsync("Documents").then(directory => {
 
                                     const newDirectory = directory.createDirectory(String(localFileName.slice(-4)).toLowerCase() === ".txt"
@@ -496,8 +503,10 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
                                     mp3List.forEach((file, index) => {
                                         console.log(file.name, "---" + index)
                                         const createdFile = newDirectory.createFile(file.name, "audio/mp3");
-                                        createdFile.write(file.bytesSync(), { intermediates: true, overwrite: true }); // overwrite not working in external storage
+                                        createdFile.write(file.bytesSync(), { encoding: "utf8" });
+
                                     })
+
 
                                     isSaving.value = false
 

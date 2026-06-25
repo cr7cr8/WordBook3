@@ -252,7 +252,7 @@ function LeftAction({ props, sourceWord, item, arrIndex, getIndex }) {
 
 function RightAction({ props, sourceWord, arrIndex, getIndex, panelHeight, newPanelHeight }) {
 
-    const { sourceWordArr, setSouceWordArr, saveWordToFile, downloadWord, deleteDownloadWord, setRefreshState,isSaving } = useContext(Context)
+    const { sourceWordArr, setSouceWordArr, saveWordToFile, downloadWord, deleteDownloadWord, setRefreshState, isSaving } = useContext(Context)
     const { editorCardY, enText, setEnText, chText, setChText, sentenceIndex, setSentenceIndex, isDownloadedArr } = useContext(DragListContext)
     const progress = props[0]
     const dragWidth = props[1]
@@ -402,7 +402,29 @@ function RightAction({ props, sourceWord, arrIndex, getIndex, panelHeight, newPa
     }
 
 
+    function exportMp3File() {
+        console.log("aass")
 
+        Directory.pickDirectoryAsync("Documents").then(directory => {
+
+
+            // const hashName1 = CryptoJS(sourceWord.wordName).toString()
+            // const directory = new Directory(Paths.document).
+            const file = new File(Paths.document, hashName1 + hashName2 + ".mp3")
+            if (file.exists) {
+
+                isSaving.value = true;
+                const createdFile = directory.createFile(file.name, "audio/mp3");
+                createdFile.write(file.bytesSync(), { intermediates: true, overwrite: true }); // overwrite not working in external storage
+
+                isSaving.value = false;
+            }
+
+
+        }).catch((e) => {
+            console.log(e)
+        })
+    }
 
 
     return (
@@ -426,42 +448,28 @@ function RightAction({ props, sourceWord, arrIndex, getIndex, panelHeight, newPa
 
 
         ]}>
+            <GestureDetector gesture={Gesture.Tap()
+                .onStart(e => {
+                    scheduleOnRN(exportMp3File)
+                   
+                })}>
 
-            <View style={{ height: 60, width: 60, backgroundColor: "lightblue", justifyContent: "center", alignItems: "center", opacity: isDownloaded ? 1 : 0 }}>
-                <Icon
-                    onPress={e => {
-                        console.log(isDownloaded)
-
-                        Directory.pickDirectoryAsync("Documents").then(directory => {
-
-
-                            // const hashName1 = CryptoJS(sourceWord.wordName).toString()
-                            // // const directory = new Directory(Paths.document).
-                             const file = new File(Paths.document, hashName1 + hashName2 + ".mp3")
-                            if (file.exists) {
-
-                                isSaving.value = true;
-                                const createdFile = directory.createFile(file.name, "audio/mp3");
-                                createdFile.write(file.bytesSync(), { intermediates: true, overwrite: true }); // overwrite not working in external storage
-
-                                isSaving.value = false;
-                            }
-
-
-                        }).catch((e) => {
-                            console.log(e)
-                        })
-                        // addSentence()
-
-                    }}
-
-
-                    name="exit-outline" type='ionicon' color='orange'
-                    containerStyle={{ width: 60, height: 60, transform: [{ rotateZ: "270deg" }], backgroundColor: "#e7cca0", justifyContent: "center" }}
-                    size={50}
-                />
-            </View>
-
+                <View style={[
+                    { height: 60, width: 60, backgroundColor: "lightblue", justifyContent: "center", alignItems: "center" },
+                    useAnimatedStyle(() => {
+                        return {
+                            opacity: isDownloaded ? 1 : 0,
+                            //transform: [{ scale: isDownloaded ? 0 : 1 }]
+                        }
+                    })
+                ]}>
+                    <Icon
+                        name="exit-outline" type='ionicon' color='orange'
+                        containerStyle={{ width: 60, height: 60, transform: [{ rotateZ: "270deg" }], backgroundColor: "#e7cca0", justifyContent: "center" }}
+                        size={50}
+                    />
+                </View>
+            </GestureDetector>
 
             <GestureDetector gesture={Gesture.Tap()
                 .onStart(e => {
@@ -1128,6 +1136,31 @@ function HeadRight({ props, sourceWord }) {
 
     }
 
+    function exportMp3File() {
+        console.log("aass")
+
+        Directory.pickDirectoryAsync("Documents").then(directory => {
+
+
+            // const hashName1 = CryptoJS(sourceWord.wordName).toString()
+            // const directory = new Directory(Paths.document).
+            const file = new File(Paths.document, hashName1 + hashName2 + ".mp3")
+            if (file.exists) {
+
+                isSaving.value = true;
+                const createdFile = directory.createFile(file.name, "audio/mp3");
+                createdFile.write(file.bytesSync(), { intermediates: true, overwrite: true }); // overwrite not working in external storage
+
+                isSaving.value = false;
+            }
+
+
+        }).catch((e) => {
+            console.log(e)
+        })
+    }
+
+
     return (
         <View style={[{
             backgroundColor: "#e7cca0", width: 240, height: 80 + 30, display: "flex", flexDirection: "row", justifyContent: "center",
@@ -1143,40 +1176,56 @@ function HeadRight({ props, sourceWord }) {
 
         ]}>
 
-            <View style={{ height: 60, width: 60, backgroundColor: "lightblue", justifyContent: "center", alignItems: "center", opacity: isDownloaded ? 1 : 0 }}>
-                <Icon
-                    onPress={e => {
-                        console.log(isDownloaded)
+            <GestureDetector gesture={Gesture.Tap().onStart((e) => {
 
-                        Directory.pickDirectoryAsync("Documents").then(directory => {
+                scheduleOnRN(exportMp3File)
 
+            })} >
+                <View style={[
+                    { height: 60, width: 60, backgroundColor: "lightblue", justifyContent: "center", alignItems: "center" },
+                    useAnimatedStyle(() => {
+                        return {
+                            opacity: isDownloaded ? 1 : 0,
+                            //transform: [{ scale: isDownloaded ? 0 : 1 }]
+                        }
+                    })
 
-                            // const hashName1 = CryptoJS(sourceWord.wordName).toString()
-                            // const directory = new Directory(Paths.document).
-                            const file = new File(Paths.document, hashName1 + hashName1 + ".mp3")
-                            if (file.exists) {
+                ]}>
+                    <Icon
+                        // onPress={e => {
+                        //     console.log(isDownloaded)
 
-                                isSaving.value = true;
-                                const createdFile = directory.createFile(file.name, "audio/mp3");
-                                createdFile.write(file.bytesSync(), { intermediates: true, overwrite: true }); // overwrite not working in external storage
-
-                                isSaving.value = false;
-                            }
-
-
-                        }).catch((e) => {
-                            console.log(e)
-                        })
-                        // addSentence()
-
-                    }}
+                        //     Directory.pickDirectoryAsync("Documents").then(directory => {
 
 
-                    name="exit-outline" type='ionicon' color='orange'
-                    containerStyle={{ width: 60, height: 60, transform: [{ rotateZ: "270deg" }], backgroundColor: "#e7cca0", justifyContent: "center" }}
-                    size={50}
-                />
-            </View>
+                        //         // const hashName1 = CryptoJS(sourceWord.wordName).toString()
+                        //         // const directory = new Directory(Paths.document).
+                        //         const file = new File(Paths.document, hashName1 + hashName2 + ".mp3")
+                        //         if (file.exists) {
+
+                        //             isSaving.value = true;
+                        //             const createdFile = directory.createFile(file.name, "audio/mp3");
+                        //             createdFile.write(file.bytesSync(), { intermediates: true, overwrite: true }); // overwrite not working in external storage
+
+                        //             isSaving.value = false;
+                        //         }
+
+
+                        //     }).catch((e) => {
+                        //         console.log(e)
+                        //     })
+                        //     // addSentence()
+
+                        // }}
+
+
+                        name="exit-outline" type='ionicon' color='orange'
+                        containerStyle={{ width: 60, height: 60, transform: [{ rotateZ: "270deg" }], backgroundColor: "#e7cca0", justifyContent: "center" }}
+                        size={50}
+                    />
+                </View>
+            </GestureDetector>
+
 
             <View style={{ height: 60, width: 60, backgroundColor: "lightblue", justifyContent: "center", alignItems: "center" }}>
                 <Icon
