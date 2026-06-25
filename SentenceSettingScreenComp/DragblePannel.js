@@ -252,7 +252,7 @@ function LeftAction({ props, sourceWord, item, arrIndex, getIndex }) {
 
 function RightAction({ props, sourceWord, arrIndex, getIndex, panelHeight, newPanelHeight }) {
 
-    const { sourceWordArr, setSouceWordArr, saveWordToFile, downloadWord, deleteDownloadWord, setRefreshState } = useContext(Context)
+    const { sourceWordArr, setSouceWordArr, saveWordToFile, downloadWord, deleteDownloadWord, setRefreshState,isSaving } = useContext(Context)
     const { editorCardY, enText, setEnText, chText, setChText, sentenceIndex, setSentenceIndex, isDownloadedArr } = useContext(DragListContext)
     const progress = props[0]
     const dragWidth = props[1]
@@ -407,7 +407,7 @@ function RightAction({ props, sourceWord, arrIndex, getIndex, panelHeight, newPa
 
     return (
         <View style={[{
-            backgroundColor: "#e7cca0", width: 180,
+            backgroundColor: "#e7cca0", width: 240,
             height: 80,
             display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center",
             borderBottomWidth: 1, borderBottomColor: "#D2B48C", //backgroundColor: "orange"
@@ -416,7 +416,7 @@ function RightAction({ props, sourceWord, arrIndex, getIndex, panelHeight, newPa
             //console.log(props[1].value, props[0].value)
             return {
                 //transform: [{ scale: interpolate((-props[1].value), [0, 180], [0, 1], "extend") }]
-                transform: [{ translateX: interpolate((props[1].value), [0, -180], [180, 0], "extend") }]
+                transform: [{ translateX: interpolate((props[1].value), [0, -240], [240, 0], "extend") }]
                 // transform: [{ translateX: interpolate((props[1].value), [0, -screenWidth], [screenWidth, 0], "extend") }]
 
                 //transform: [{ translateX: interpolate((props[0].value), [0, 1], [180, 0], "extend") }]
@@ -426,6 +426,41 @@ function RightAction({ props, sourceWord, arrIndex, getIndex, panelHeight, newPa
 
 
         ]}>
+
+            <View style={{ height: 60, width: 60, backgroundColor: "lightblue", justifyContent: "center", alignItems: "center", opacity: isDownloaded ? 1 : 0 }}>
+                <Icon
+                    onPress={e => {
+                        console.log(isDownloaded)
+
+                        Directory.pickDirectoryAsync("Documents").then(directory => {
+
+
+                            // const hashName1 = CryptoJS(sourceWord.wordName).toString()
+                            // // const directory = new Directory(Paths.document).
+                             const file = new File(Paths.document, hashName1 + hashName2 + ".mp3")
+                            if (file.exists) {
+
+                                isSaving.value = true;
+                                const createdFile = directory.createFile(file.name, "audio/mp3");
+                                createdFile.write(file.bytesSync(), { intermediates: true, overwrite: true }); // overwrite not working in external storage
+
+                                isSaving.value = false;
+                            }
+
+
+                        }).catch((e) => {
+                            console.log(e)
+                        })
+                        // addSentence()
+
+                    }}
+
+
+                    name="exit-outline" type='ionicon' color='orange'
+                    containerStyle={{ width: 60, height: 60, transform: [{ rotateZ: "270deg" }], backgroundColor: "#e7cca0", justifyContent: "center" }}
+                    size={50}
+                />
+            </View>
 
 
             <GestureDetector gesture={Gesture.Tap()
@@ -921,7 +956,7 @@ function HeadRight({ props, sourceWord }) {
 
     const { sourceWordArr, setSouceWordArr, saveWordToFile, downloadWord, deleteDownloadWord, isScrollingY, totalWordsNum,
         isScrollingX,
-        setRefreshState, wordPos, scrollRef, scrollRef2, isListPlaying, deleteWordToFile, smallIndex, largeIndex } = useContext(Context)
+        setRefreshState, wordPos, scrollRef, scrollRef2, isListPlaying, deleteWordToFile, smallIndex, largeIndex, isSaving } = useContext(Context)
 
     const progress = props[0]
     const dragWidth = props[1]
@@ -1095,18 +1130,54 @@ function HeadRight({ props, sourceWord }) {
 
     return (
         <View style={[{
-            backgroundColor: "#e7cca0", width: 180, height: 80 + 30, display: "flex", flexDirection: "row", justifyContent: "center",
+            backgroundColor: "#e7cca0", width: 240, height: 80 + 30, display: "flex", flexDirection: "row", justifyContent: "center",
             alignItems: "flex-end", borderBottomWidth: 1, borderBottomColor: "#D2B48C",
         },
         useAnimatedStyle(() => {
             return {
                 //transform: [{ scale: interpolate((-props[1].value), [0, 180], [0, 1], "extend") }]
-                transform: [{ translateX: interpolate((props[1].value), [0, -180], [180, 0], "extend") }]
+                transform: [{ translateX: interpolate((props[1].value), [0, -240], [240, 0], "extend") }]
             }
         })
 
 
         ]}>
+
+            <View style={{ height: 60, width: 60, backgroundColor: "lightblue", justifyContent: "center", alignItems: "center", opacity: isDownloaded ? 1 : 0 }}>
+                <Icon
+                    onPress={e => {
+                        console.log(isDownloaded)
+
+                        Directory.pickDirectoryAsync("Documents").then(directory => {
+
+
+                            // const hashName1 = CryptoJS(sourceWord.wordName).toString()
+                            // const directory = new Directory(Paths.document).
+                            const file = new File(Paths.document, hashName1 + hashName1 + ".mp3")
+                            if (file.exists) {
+
+                                isSaving.value = true;
+                                const createdFile = directory.createFile(file.name, "audio/mp3");
+                                createdFile.write(file.bytesSync(), { intermediates: true, overwrite: true }); // overwrite not working in external storage
+
+                                isSaving.value = false;
+                            }
+
+
+                        }).catch((e) => {
+                            console.log(e)
+                        })
+                        // addSentence()
+
+                    }}
+
+
+                    name="exit-outline" type='ionicon' color='orange'
+                    containerStyle={{ width: 60, height: 60, transform: [{ rotateZ: "270deg" }], backgroundColor: "#e7cca0", justifyContent: "center" }}
+                    size={50}
+                />
+            </View>
+
             <View style={{ height: 60, width: 60, backgroundColor: "lightblue", justifyContent: "center", alignItems: "center" }}>
                 <Icon
                     onPress={e => {
