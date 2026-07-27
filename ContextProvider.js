@@ -164,12 +164,12 @@ export default function ContextProvider(props) {
                 saveWordToFile()
             }, 100);
 
-            totalWordsNum.value = arr.length 
+            totalWordsNum.value = arr.length
         }
         else {
 
             let arr = JSON.parse(wordFile.textSync())
-            totalWordsNum.value = arr.length 
+            totalWordsNum.value = arr.length
 
             const configFile = new File(Paths.document, "config.json")
             if (!configFile.exists) {
@@ -755,7 +755,7 @@ export default function ContextProvider(props) {
 
     const [newWordText, setNewWordText] = useState("")
 
-
+    const [msg, setMsg] = useState("")
 
     return (
 
@@ -773,7 +773,8 @@ export default function ContextProvider(props) {
             sentencePlayingIndex, autoPlay,
             newWordText, setNewWordText,
             selectedLevelArr, smallIndex, largeIndex, enableSlice, wordRepeatingArr, sentenceRepeatingArr, sameAmountWord, sameAmountSentence, exportFileName,
-            isSaving
+            isSaving,
+            msg, setMsg
         }}>
 
             {props.children}
@@ -794,7 +795,8 @@ export default function ContextProvider(props) {
                     opacity: isSaving.value ? 1 : 0
                 }
             })}>
-                <Text style={{ fontSize: 30 }}>Saving...</Text>
+                <Text ellipsizeMode="clip" style={{ fontSize: 30, }}>Saving...</Text>
+                <Text ellipsizeMode="clip" style={{ fontSize: 30, fontFamily: "monospace" }}>{msg}</Text>
             </View>
         </Context.Provider>
 

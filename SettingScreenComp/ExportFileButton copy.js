@@ -425,69 +425,35 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
                             })
 
 
+
+
                         if (mp3List.length > 0) {
 
+                            isSaving.value = true
+                            setTimeout(() => {
+                                Directory.pickDirectoryAsync("Documents").then(directory => {
 
+                                    const newDirectory = directory.createDirectory(String(localFileName.slice(-4)).toLowerCase() === ".txt"
+                                        ? localFileName
+                                        : localFileName + ".txt"
+                                    )
 
-                            Directory.pickDirectoryAsync("Documents").then(directory => {
-                                setMsg(1 + "/" + mp3List.length)
-                                const newDirectory = directory.createDirectory(String(localFileName.slice(-4)).toLowerCase() === ".txt"
-                                    ? localFileName
-                                    : localFileName + ".txt"
-                                )
-
-
-                                function exportMP3(index) {
-
-                                    if (index >= mp3List.length) {
-                                        setMsg("")
-                                        return isSaving.value = false
-                                    }
-
-                                    const file = mp3List[index]
-                                    const p = new Promise((resolve, reject) => {
-                                        console.log("start exporting", file.name, "---" + index)
+                                    mp3List.forEach((file, index) => {
+                                        console.log(file.name, "---" + index)
                                         const createdFile = newDirectory.createFile(file.name, "audio/mp3");
                                         createdFile.write(file.bytesSync(), { encoding: "utf8" });
 
-
-                                        resolve()
-
-                                    })
-                                    p.then(() => {
-                                        setMsg(index + 1 + "/" + mp3List.length)
-                                        if ((index + 1 >= mp3List.length)) {
-
-                                            setMsg("")
-                                            console.log("exporting all done.")
-                                            isSaving.value = false;
-                                        }
-                                        else {
-                                            setTimeout(() => {
-                                                exportMP3(index + 1)
-                                            }, 0);
-
-                                        }
-
-                                    }).catch((e) => {
-                                        setMsg("")
-                                        console.log("error --->", e)
-                                        isSaving.value = false
-
                                     })
 
-                                }
+                                    isSaving.value = false
 
-                                isSaving.value = true
-                                exportMP3(0)
+                                }).catch(() => {
+                                    isSaving.value = false
+                                })
+                            }, 100);
 
-
-                            }).catch(() => {
-                                isSaving.value = false
-                            })
 
                         }
-
 
                     }}
                 />
@@ -523,7 +489,7 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
 
                         if (mp3List.length > 0) {
 
-
+                            isSaving.value = true
 
                             Directory.pickDirectoryAsync("Documents").then(directory => {
                                 setMsg(1 + "/" + mp3List.length)
@@ -553,10 +519,9 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
                                     p.then(() => {
                                         setMsg(index + 1 + "/" + mp3List.length)
                                         if ((index + 1 >= mp3List.length)) {
-
+                                            isSaving.value = false;
                                             setMsg("")
                                             console.log("exporting all done.")
-                                            isSaving.value = false;
                                         }
                                         else {
                                             setTimeout(() => {
@@ -569,18 +534,43 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
                                         setMsg("")
                                         console.log("error --->", e)
                                         isSaving.value = false
-
                                     })
 
                                 }
 
-                                isSaving.value = true
                                 exportMP3(0)
 
 
-                            }).catch(() => {
-                                isSaving.value = false
                             })
+
+
+
+
+
+                            // setTimeout(() => {
+
+                            //     Directory.pickDirectoryAsync("Documents").then(directory => {
+
+                            //         const newDirectory = directory.createDirectory(String(localFileName.slice(-4)).toLowerCase() === ".txt"
+                            //             ? localFileName
+                            //             : localFileName + ".txt"
+                            //         )
+
+                            //         mp3List.forEach((file, index) => {
+                            //             console.log(file.name, "---" + index)
+                            //             const createdFile = newDirectory.createFile(file.name, "audio/mp3");
+                            //             createdFile.write(file.bytesSync(), { encoding: "utf8" });
+
+                            //         })
+
+
+                            //         isSaving.value = false
+
+                            //     }).catch(() => {
+                            //         isSaving.value = false
+                            //     })
+                            // }, 100);
+
 
                         }
 
@@ -593,66 +583,30 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
                     size={40}
                     onPress={(e) => {
 
+                        isSaving.value = true
 
-
-                        let mp3List_ = []
+                        const mp3List = []
                         Paths.document.list()
                             .filter(file => { return (file.name.length >= 128 && file.extension === ".mp3") })
-                            .forEach((file, index) => { mp3List_.push(file.name) })
+                            .forEach((file, index) => { mp3List.push(file.name) })
 
 
                         Directory.pickDirectoryAsync("Documents").then(directory => {
 
-
-                            const mp3List = directory.list().filter(file => { return (file.name.length >= 128 && file.extension === ".mp3" && !mp3List_.includes(file.name)) })
-
-                            if (mp3List.length > 0) {
-                                isSaving.value = true
-
-                            }
-
-
-                            function importMP3(index) {
-                                if (index >= mp3List.length) {
-                                    setMsg("")
-                                    return isSaving.value = false
-                                }
-                                const file = mp3List[index]
-                                const p = new Promise((resolve, reject) => {
-                                    console.log("start importing", file.name, "---" + index, mp3List.length)
+                            directory.list()
+                                .filter(file => { return (file.name.length >= 128 && file.extension === ".mp3" && !mp3List.includes(file.name)) })
+                                .forEach(file => {
 
                                     const mp3File = new File(Paths.document, file.name)
                                     mp3File.create({ intermediates: true, overwrite: true })
-                                    mp3File.write(file.bytesSync(), { encoding: "utf8" })
+                                    mp3File.write(file.bytesSync(), {})
 
-                                    resolve()
-                                })
-                                p.then(() => {
-                                    setMsg(index + 1 + "/" + mp3List.length)
-                                    if ((index + 1 >= mp3List.length)) {
-
-                                        setMsg("")
-                                        console.log("importing all done.")
-                                        isSaving.value = false;
-                                    }
-                                    else {
-                                        setTimeout(() => {
-                                            importMP3(index + 1)
-                                        }, 0);
-
-                                    }
-
-                                }).catch((e) => {
-                                    setMsg("")
-                                    console.log("error --->", e)
-                                    isSaving.value = false
                                 })
 
-                            }
-                            importMP3(0)
-
-                        }).catch(() => {
-                            isSaving.value = false
+                        }).finally(() => {
+                            setTimeout(() => {
+                                isSaving.value = false
+                            }, 100);
                         })
 
                     }}
