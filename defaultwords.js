@@ -38,7 +38,7 @@ const  defaultwordsArr = [
         "exampleEnglishArr": [
             {
                 "key": "en-668101",
-                "sentence": "abase his reputation",
+                "sentence": "the initial sentence of abase",
                 "firstTimeAmount": 2,
                 "secondTimeAmount": 2
             },
@@ -86307,3 +86307,7 @@ const  defaultwordsArr = [
 ]
 
 export {defaultwordsArr}
+
+
+
+

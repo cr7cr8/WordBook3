@@ -50,7 +50,7 @@ import { runOnJS, runOnUI, scheduleOnRN, scheduleOnUI } from 'react-native-workl
 
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { FadeIn, FadeOut, BounceIn, BounceOut, SlideOutUp } from 'react-native-reanimated';
-const { View, Text, ScrollView, FlatList } = ReAnimated
+const { View, Text, ScrollView, FlatList, Image } = ReAnimated
 
 import { Context } from './ContextProvider';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -96,7 +96,7 @@ export default function HomeScreen() {
 
 
     const { sourceWordArr, setSouceWordArr, scrollRef0, scrollRef, scrollRef2, frameTransY, wordPos, isListPlaying, preLeft, preTop, scrollY, scrollX, refreshState, setRefreshState,
-        isPanning, speak, autoPlay, stopSpeak, isScrollingY, isScrollingX, isCardMoving, isManualDrag, shouldHideWordBlock ,selectedLevelArr,isNewerstOnTop} = useContext(Context)
+        isPanning, speak, autoPlay, stopSpeak, isScrollingY, isScrollingX, isCardMoving, isManualDrag, shouldHideWordBlock, selectedLevelArr, isNewerstOnTop } = useContext(Context)
 
 
     // const navigation = useNavigation()
@@ -262,12 +262,16 @@ export default function HomeScreen() {
         return {
             width: screenWidth,
             height: screenHeight - headHeight - 80,//frameTransY.vallue
-            backgroundColor: "#D6BD95"
+            backgroundColor: "#D6BD95",
+            //  backgroundColor: "lightgreen",
+            justifyContent: "flex-start", alignContent: "center", alignItems: "center"
+
+
         }
     })
 
 
-  
+
 
 
 
@@ -325,7 +329,16 @@ export default function HomeScreen() {
                     decelerationRate={1}
 
                     renderFooter={function () {
-                        return <View style={[footStyle]} />
+                        return (
+                            <View style={[footStyle]}>
+                                <Image source={require('./assets/kkll2.png')}
+
+                                    resizeMode={"contain"}
+                                    style={{ width: screenWidth, height: screenWidth, 
+                                        marginTop: 40, opacity: 0.6, transform: [{ scale: 1.2 }], borderRadius: 900 }}
+                                />
+                            </View>
+                        )
                     }}
 
                     scrollViewProps={{
@@ -498,8 +511,8 @@ export default function HomeScreen() {
 
 
             <ScrollPivot />
-      
-      
+
+
         </View>
 
 

@@ -451,7 +451,7 @@ function RightAction({ props, sourceWord, arrIndex, getIndex, panelHeight, newPa
             <GestureDetector gesture={Gesture.Tap()
                 .onStart(e => {
                     scheduleOnRN(exportMp3File)
-                   
+
                 })}>
 
                 <View style={[
@@ -1076,13 +1076,16 @@ function HeadRight({ props, sourceWord }) {
                 deleteWordToFile(sourceWord)
             }, 100);
 
-            setRefreshState(Math.random())
+
 
 
 
 
             setTimeout(() => {
+               
+                setRefreshState(Math.random())
                 setSouceWordArr(sourceWordArr => {
+
                     return arr
                 })
             }, sourceWordArr.length > 1 ? 0 : 500);// need 500 second to make sure scroll animation finish

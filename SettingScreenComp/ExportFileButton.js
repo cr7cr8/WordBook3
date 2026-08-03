@@ -69,6 +69,162 @@ import { useDebounce, useDebouncedCallback, useThrottledCallback } from 'use-deb
 import CryptoJS from 'crypto-js/sha256';
 import { ReText } from 'react-native-redash';
 
+import Ajv from "ajv";
+import * as Clipboard from "expo-clipboard";
+
+
+
+
+
+
+
+
+const ajv = new Ajv();
+
+const wordSchema = {
+    type: "array",
+    items: {
+        type: "object",
+        properties: {
+            wordName: {
+                type: "string"
+            },
+            meaning: {
+                type: "string"
+            },
+            meaningSound: {
+                type: "string"
+            },
+            createTime: {
+                type: "number"
+            },
+            toppingTime: {
+                type: "number"
+            },
+
+            exampleEnglishArr: {
+                type: "array",
+                items: {
+                    type: "object",
+                    properties: {
+                        key: {
+                            type: "string"
+                        },
+                        sentence: {
+                            type: "string"
+                        },
+                        firstTimeAmount: {
+                            type: "number"
+                        },
+                        secondTimeAmount: {
+                            type: "number"
+                        }
+                    },
+                    required: [
+                        "key",
+                        "sentence",
+                        "firstTimeAmount",
+                        "secondTimeAmount"
+                    ],
+                    additionalProperties: false
+                }
+            },
+
+            exampleChineseArr: {
+                type: "array",
+                items: {
+                    type: "object",
+                    properties: {
+                        key: {
+                            type: "string"
+                        },
+                        sentence: {
+                            type: "string"
+                        },
+                        firstTimeAmount: {
+                            type: "number"
+                        },
+                        secondTimeAmount: {
+                            type: "number"
+                        }
+                    },
+                    required: [
+                        "key",
+                        "sentence",
+                        "firstTimeAmount",
+                        "secondTimeAmount"
+                    ],
+                    additionalProperties: false
+                }
+            },
+
+            level: {
+                type: "number"
+            },
+
+            accent: {
+                type: "string",
+                enum: ["UK", "US"]
+            },
+
+            showChinese: {
+                type: "boolean"
+            },
+
+            firstTimeAmount: {
+                type: "number"
+            },
+
+            firstTimeMeaningAmount: {
+                type: "number"
+            },
+
+            secondTimeAmount: {
+                type: "number"
+            },
+
+            secondTimeMeaningAmount: {
+                type: "number"
+            }
+        },
+
+        required: [
+            "wordName",
+            "meaning",
+            "meaningSound",
+            "createTime",
+            "toppingTime",
+            "exampleEnglishArr",
+            "exampleChineseArr",
+            "level",
+            "accent",
+            "showChinese",
+            "firstTimeAmount",
+            "firstTimeMeaningAmount",
+            "secondTimeAmount",
+            "secondTimeMeaningAmount"
+        ],
+
+        additionalProperties: false
+    }
+};
+
+
+const validate = ajv.compile(wordSchema);
+
+//const ok = validate(data);
+
+//console.log(ok);
+
+//if (!ok) {
+//  console.log(validate.errors);
+//}
+
+
+
+
+
+
 
 
 export default function ExportFileButton({ allWords, filterLevel, setAllWords,
@@ -82,7 +238,7 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
     const { sourceWordArr, setSouceWordArr, totalWordsNum, scrollRef0, scrollRef, scrollRef2, frameTransY, wordPos, isListPlaying, preLeft, preTop, scrollY, scrollX,
         isPanning, speak, autoPlay, stopSpeak, isScrollingY, isScrollingX, isCardMoving, isManualDrag, shouldHideWordBlock, isNewerstOnTop, setRefreshState,
         selectedLevelArr, smallIndex, largeIndex, enableSlice, wordRepeatingArr, sentenceRepeatingArr, sameAmountWord, sameAmountSentence, exportFileName, isSaving,
-        msg, setMsg
+        msg, setMsg, saveWordToFile
     } = useContext(Context)
     const navigation = useNavigation()
     const [localFileName, setLocalFileName] = useState(exportFileName.value)
@@ -338,7 +494,7 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
 
 
             </View>
-            <View style={useAnimatedStyle(() => {
+            <View pointerEvents={"auto"} style={useAnimatedStyle(() => {
 
                 return {
                     flexDirection: "row",
@@ -373,9 +529,121 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
 
                 />
 
+                <Icon name="enter" type='ionicon' color='orange'
+                    containerStyle={{ width: 40, height: 40, transform: [{ rotateZ: "90deg" }, { translateX: 1 }] }}
+                    size={40}
+                    onPress={(e) => {
+
+
+                        isSaving.value = true
+                        console.log()
+                        console.log("tt", Date.now())
+
+                        Clipboard.getStringAsync().then(text => {
+
+                            //  console.log(text)
+                            if (!isJsonString(text)) {
+                                console.log("json string not valid")
+                                Alert.alert("Invalid format", text)
+                            }
+                            else {
+
+                                console.log("-------------------------------------")
+
+
+
+                                //  console.log(text)
+                                let wordArr = JSON.parse(text)
+                                wordArr = wordArr.map((element, index) => {
+                                    const itmeStamp = Date.now() + (wordArr.length - index)
+                                    element.toppingTime = itmeStamp
+                                    element.createTime = itmeStamp
+                                    return element
+                                });
+
+                                const file = new File(Paths.document, "allwords.txt")
+                                const allWords = JSON.parse(file.textSync())
+
+
+
+
+
+
+
+                                const { array3, array4 } = distributeAndMergeBuckets(wordArr, allWords);
+
+
+
+
+                                setSouceWordArr((sourceWordArr) => {
+
+                                    const expandArray3OnHeader = () => {
+                                        return isNewerstOnTop.value ? array3 : []
+                                    }
+                                    const expandArray3OnTail = () => {
+                                        return isNewerstOnTop.value ? [] : array3
+                                    }
+
+
+                                    return [
+                                        ...expandArray3OnHeader(),
+                                        ...sourceWordArr.filter(word => {
+
+                                            const index = array4.findIndex((array4Item) => {
+                                                return word.wordName === array4Item.wordName
+                                            })
+
+                                            return Boolean(index >= 0)
+
+
+                                        }),
+                                        ...expandArray3OnTail()
+                                    ]
+
+
+                                })
+                                navigation.goBack()
+                                setTimeout(() => {
+                                    isSaving.value = false
+                                    saveWordToFile()
+                                    setTimeout(() => {
+                                        setRefreshState(Math.random())
+                                    }, 100);
+                                }, 100);
+
+                                //console.log(array3)
+                                //console.log(array4)
+                                // setTimeout(() => {
+                                //  //   const wordFile = new File(Paths.document, "allwords.txt")
+                                //  //   wordFile.write(JSON.stringify(newAllWords))
+                                //     setSouceWordArr(() => { return newAllWords })
+
+                                //      setTimeout(() => {
+                                //         //  filterLevel()
+                                //         saveWordToFile()
+                                //          navigation.goBack()
+                                //      }, 1000);
+
+                                //     console.log("writing")
+                                // }, 100)
+
+
+
+                            }
+
+
+
+
+
+
+
+                        })
+
+                    }}
+
+                />
 
             </View>
-
 
             <View style={useAnimatedStyle(() => {
 
@@ -737,3 +1005,79 @@ function CustomAlert() {
         </View>
     );
 }
+
+
+
+
+
+function isJsonString(str) {
+    try {
+        JSON.parse(str);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
+
+
+
+
+
+function distributeAndMergeBuckets(arr1, arr2) {
+    const array3 = [];
+
+    // Deep clone elements of arr1 to prevent altering parameters outside the function
+    const cleanArr1 = JSON.parse(JSON.stringify(arr1));
+
+    cleanArr1.forEach(item1 => {
+        // Search for the matching index inside arr2
+        const matchIdx = arr2.findIndex(item2 => item2.wordName === item1.wordName);
+
+        if (matchIdx === -1) {
+            // SCENARIO 1: Word does not exist in arr2 -> Push straight to array3
+            array3.push(item1);
+        } else {
+            // SCENARIO 2: Word matches in arr2 -> Splice and extract it completely out of arr2
+            const matchedTarget = arr2.splice(matchIdx, 1)[0];
+
+            // Sync the toppingTime milestone
+            if (item1.toppingTime !== undefined) {
+                matchedTarget.toppingTime = item1.toppingTime;
+            }
+
+            matchedTarget.exampleEnglishArr = matchedTarget.exampleEnglishArr || [];
+            matchedTarget.exampleChineseArr = matchedTarget.exampleChineseArr || [];
+
+            // Create tracking Set based on the text values already registered in arr2
+            const existingEnglishTexts = new Set(matchedTarget.exampleEnglishArr.map(e => e.sentence));
+
+            const engArr1 = item1.exampleEnglishArr || [];
+            const chnArr1 = item1.exampleChineseArr || [];
+
+            // Pairwise index loop for structural text deduplication
+            engArr1.forEach((engObj, idx) => {
+                if (!existingEnglishTexts.has(engObj.sentence)) {
+                    existingEnglishTexts.add(engObj.sentence);
+
+                    matchedTarget.exampleEnglishArr.push(engObj);
+                    if (chnArr1[idx]) {
+                        matchedTarget.exampleChineseArr.push(chnArr1[idx]);
+                    }
+                }
+            });
+
+            // Route the fully synchronized record directly into array3
+            array3.push(matchedTarget);
+        }
+    });
+
+    // Sort array3 by toppingTime descending (largest/newest timestamps first)
+    array3.sort((a, b) => (b.toppingTime || 0) - (a.toppingTime || 0));
+
+    // array4 represents the leftover elements that were never extracted/touched inside arr2
+    const array4 = arr2;
+
+    return { array3, array4 };
+}
+
