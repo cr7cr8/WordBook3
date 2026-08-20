@@ -2,7 +2,15 @@
   "expo": {
     "name": "WordBook3",
     "slug": "WordBook3",
-    "version": "1.2.3",
+    "version": "2.9.10",
+    "plugins": [
+      [
+        "expo-audio",
+        {
+          "enableBackgroundAudio": true
+        }
+      ]
+    ],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",

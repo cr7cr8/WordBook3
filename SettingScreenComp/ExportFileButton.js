@@ -197,8 +197,8 @@ const wordSchema = {
             "exampleEnglishArr",
             "exampleChineseArr",
             "level",
-            "accent",
-            "showChinese",
+            //"accent",
+            //"showChinese",
             "firstTimeAmount",
             "firstTimeMeaningAmount",
             "secondTimeAmount",
@@ -246,9 +246,11 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
 
         File.pickFileAsync("content://com.android.externalstorage.documents/document/", "text/plain").then(file => {
 
-            console.log(file.name)
-            //setLocalFileName(file.name)
 
+            //setLocalFileName(file.name)
+            const uriSegments = decodeURIComponent(file.name).split('/') || 'document.txt';
+
+            console.log("=============================>>>>>>>>", file.name, uriSegments, file.info())
 
             setTimeout(() => {
                 navigation.reset({
@@ -282,7 +284,7 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
                     smallIndex: 0,
                     largeIndex: Math.max(0, arr.length - 1),
                     enableSlice: true,
-                    exportFileName: file.name,
+                    exportFileName: localFileName,
 
                     wordRepeatingArr: wordRepeatingArr.value,
                     sentenceRepeatingArr: sentenceRepeatingArr.value,
@@ -300,7 +302,7 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
                 smallIndex.value = 0;
                 largeIndex.value = Math.max(0, arr.length - 1);
                 enableSlice.value = true;
-                exportFileName.value = file.name;
+                exportFileName.value = localFileName;
 
                 arr.sort((word1, word2) => { return word2.toppingTime - word1.toppingTime })
 
@@ -318,6 +320,84 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
 
 
     }
+
+
+    function loadTextFile2(arr3, arr4) {
+
+        const arr = [...arr3, ...arr4]
+
+        // setTimeout(() => {
+        //     navigation.reset({
+        //         index: 0,
+        //         routes: [
+        //             {
+        //                 name: 'HomeScreen',
+        //                 //  params: { user: 'jane', key: route.params.key },
+        //             },
+
+        //         ],
+        //     })
+        //     setTimeout(() => {
+        //         setRefreshState(Math.random())
+        //     }, 500);
+        // }, 500);
+        totalWordsNum.value = arr.length
+        navigation.goBack()
+
+        setTimeout(() => {
+
+            formattedText1.value = 0 + ""
+            formattedText2.value = Math.max(0, arr3.length, formattedText1.value, formattedText2.value); + ""
+            let configObj = {
+
+                isNewerstOnTop: true,
+                selectedLevelArr: [true, true, true, true, true, true],
+                smallIndex: 0,
+                largeIndex: Math.max(0, arr3.length, formattedText1.value, formattedText2.value),
+                enableSlice: true,
+                exportFileName: localFileName,
+
+                wordRepeatingArr: wordRepeatingArr.value,
+                sentenceRepeatingArr: sentenceRepeatingArr.value,
+                sameAmountWord: sameAmountWord.value,
+                sameAmountSentence: sameAmountSentence.value,
+
+
+            }
+            const configFile = new File(Paths.document, "config.json")
+            configFile.create({ intermediates: true, overwrite: true })
+            configFile.write(JSON.stringify(configObj), {})
+
+            isNewerstOnTop.value = true
+            selectedLevelArr.value = [true, true, true, true, true, true];
+            smallIndex.value = 0;
+            largeIndex.value = Math.max(0, arr3.length, formattedText1.value, formattedText2.value);
+            enableSlice.value = true;
+            exportFileName.value = localFileName;
+
+            arr.sort((word1, word2) => { return word2.toppingTime - word1.toppingTime })
+
+            const allWordsFile = new File(Paths.document, "allwords.txt")
+            allWordsFile.create({ intermediates: true, overwrite: true })
+            allWordsFile.write(JSON.stringify(arr), {})
+            wordPos.value = 0
+            setTimeout(() => {
+                console.log("lengtyh", arr3.length)
+                setSouceWordArr(arr.slice(smallIndex.value, 1 + Math.max(0, arr3.length, formattedText1.value, formattedText2.value)))
+                isSaving.value = false
+                setRefreshState(Math.random())
+            }, 0);
+
+        }, 0);
+
+
+
+
+
+
+    }
+
+
 
     async function exportTextFile() {
 
@@ -535,9 +615,9 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
                     onPress={(e) => {
 
 
-                        isSaving.value = true
+
                         console.log()
-                        console.log("tt", Date.now())
+               
 
                         Clipboard.getStringAsync().then(text => {
 
@@ -546,14 +626,30 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
                                 console.log("json string not valid")
                                 Alert.alert("Invalid format", text)
                             }
+
+
+
                             else {
 
-                                console.log("-------------------------------------")
+                                console.log("------------------aa------------s-------")
 
 
 
-                                //  console.log(text)
                                 let wordArr = JSON.parse(text)
+
+                                if (!validate(wordArr)) {
+                                    let errmsg = ""
+                                    validate.errors.forEach(err => {
+                                        console.log(`Field '${err.instancePath}' ${err.message}`,Date.now());
+                                        errmsg = errmsg + err.message + "\n"
+                                    });
+                                    Alert.alert("Invalid format", errmsg)
+                                    return
+                                }
+                               
+
+
+
                                 wordArr = wordArr.map((element, index) => {
                                     const itmeStamp = Date.now() + (wordArr.length - index)
                                     element.toppingTime = itmeStamp
@@ -563,69 +659,20 @@ export default function ExportFileButton({ allWords, filterLevel, setAllWords,
 
                                 const file = new File(Paths.document, "allwords.txt")
                                 const allWords = JSON.parse(file.textSync())
-
-
-
-
-
-
-
                                 const { array3, array4 } = distributeAndMergeBuckets(wordArr, allWords);
+                                isSaving.value = true
 
-
-
-
-                                setSouceWordArr((sourceWordArr) => {
-
-                                    const expandArray3OnHeader = () => {
-                                        return isNewerstOnTop.value ? array3 : []
-                                    }
-                                    const expandArray3OnTail = () => {
-                                        return isNewerstOnTop.value ? [] : array3
-                                    }
-
-
-                                    return [
-                                        ...expandArray3OnHeader(),
-                                        ...sourceWordArr.filter(word => {
-
-                                            const index = array4.findIndex((array4Item) => {
-                                                return word.wordName === array4Item.wordName
-                                            })
-
-                                            return Boolean(index >= 0)
-
-
-                                        }),
-                                        ...expandArray3OnTail()
-                                    ]
-
-
-                                })
-                                navigation.goBack()
                                 setTimeout(() => {
-                                    isSaving.value = false
-                                    saveWordToFile()
-                                    setTimeout(() => {
-                                        setRefreshState(Math.random())
-                                    }, 100);
-                                }, 100);
+                                    loadTextFile2(array3, array4)
+                                }, 0);
 
-                                //console.log(array3)
-                                //console.log(array4)
-                                // setTimeout(() => {
-                                //  //   const wordFile = new File(Paths.document, "allwords.txt")
-                                //  //   wordFile.write(JSON.stringify(newAllWords))
-                                //     setSouceWordArr(() => { return newAllWords })
 
-                                //      setTimeout(() => {
-                                //         //  filterLevel()
-                                //         saveWordToFile()
-                                //          navigation.goBack()
-                                //      }, 1000);
 
-                                //     console.log("writing")
-                                // }, 100)
+
+
+
+
+
 
 
 

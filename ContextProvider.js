@@ -78,7 +78,7 @@ export default function ContextProvider(props) {
                         arr2.push(word)
                     }
                 })
-                wordFile.write(JSON.stringify([...arr, ...arr2]))
+                wordFile.write(JSON.stringify([...arr, ...arr2])  ,{}  )
                 console.log("saving done,allwords.txt has been rewritten")
                 //   console.log(wordFile.textSync())
                 isSaving.value = false
